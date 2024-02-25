@@ -8,8 +8,8 @@ FUTU_OPEND_ADDRESS = '127.0.0.1'  # Futu OpenD listening address
 FUTU_OPEND_PORT = 11111  # Futu OpenD listening port
 
 DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PW_FILENAME = 'pw.txt'
-PW_PATH = os.path.join(DIR, PW_FILENAME)
+PDIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+PW_PATH = os.path.join(PDIR, 'passwords/futu_trd_pw.txt')
 TRADING_PWD = next(open(PW_PATH, 'r')).strip()  # Trading password, used to unlock trading for real trading environment
 
 TRADING_ENVIRONMENT = TrdEnv.SIMULATE  # Trading environment: REAL / SIMULATE
@@ -114,12 +114,12 @@ def get_ask_and_bid(code):
 
 
 # Open long positions
-def open_position(code):
+def open_position(code, open_quantity):
     # Get order book data
     ask, bid = get_ask_and_bid(code)
 
     # Get quantity
-    open_quantity = calculate_quantity()
+    # open_quantity = calculate_quantity()
 
     # Check whether buying power is enough
     if is_valid_quantity(TRADING_SECURITY, open_quantity, ask):
@@ -220,6 +220,7 @@ def on_bar_open():
 
     # Query for candlesticks, and calculate moving average value
     bull_or_bear = calculate_bull_bear(TRADING_SECURITY, FAST_MOVING_AVERAGE, SLOW_MOVING_AVERAGE)
+    # buy_quantity = 
 
     # Get positions
     holding_position = get_holding_position(TRADING_SECURITY)
@@ -228,7 +229,7 @@ def on_bar_open():
     if holding_position == 0:
         if bull_or_bear == 1:
             print('[Signal] Long signal. Open long positions.')
-            open_position(TRADING_SECURITY)
+            open_position(TRADING_SECURITY, buy_quantity)
         else:
             print('[Signal] Short signal. Do not open short positions.')
     elif holding_position > 0:
@@ -280,7 +281,6 @@ class OnFillClass(TradeDealHandlerBase):
         ret, data = super(OnFillClass, self).on_recv_rsp(rsp_pb)
         if ret == RET_OK:
             on_fill(data)
-
 
 # Main function
 if __name__ == '__main__':
