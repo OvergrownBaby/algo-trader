@@ -1,6 +1,5 @@
 venv_futu/
-status/
-log/
 requirements.txt
 LICENSE
 README.md
+.DS_Store

@@ -1,15 +1,22 @@
+from flask import Flask, request, jsonify
 import os
 import pandas as pd
 
 dir = os.path.dirname(os.path.abspath(__file__))
-status_dir = os.path.join(dir, 'status')
 
-for file in os.listdir(status_dir):
+app = Flask(__name__)
+
+@app.route('/get_csv', methods=['GET'])
+def get_csv():
+    date = request.args.get('date')  # Assume date format is YYYY-MM-DD
+    filepath = os.path.join(dir, f'status/{date}.csv')
+
     
+    if os.path.exists(filepath):
+        df = pd.read_csv(filepath)
+        return df.to_html()  # Or jsonify(df.to_dict()) for JSON format
+    else:
+        return "CSV file for the requested date does not exist.", 404
 
-
-# html_table = df.to_html()
-
-# Optionally, write the HTML table to a file
-# with open('path/to/your/table.html', 'w') as f:
-#     f.write(html_table)
+if __name__ == '__main__':
+    app.run()
