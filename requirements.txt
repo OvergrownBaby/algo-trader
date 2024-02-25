@@ -1,0 +1,5 @@
+futu-api
+numpy
+pandas
+Flask
+jsonify
