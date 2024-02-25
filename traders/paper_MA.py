@@ -114,12 +114,12 @@ def get_ask_and_bid(code):
 
 
 # Open long positions
-def open_position(code, open_quantity):
+def open_position(code):
     # Get order book data
     ask, bid = get_ask_and_bid(code)
 
     # Get quantity
-    # open_quantity = calculate_quantity()
+    open_quantity = calculate_quantity()
 
     # Check whether buying power is enough
     if is_valid_quantity(TRADING_SECURITY, open_quantity, ask):
@@ -229,7 +229,7 @@ def on_bar_open():
     if holding_position == 0:
         if bull_or_bear == 1:
             print('[Signal] Long signal. Open long positions.')
-            open_position(TRADING_SECURITY, buy_quantity)
+            open_position(TRADING_SECURITY)
         else:
             print('[Signal] Short signal. Do not open short positions.')
     elif holding_position > 0:
