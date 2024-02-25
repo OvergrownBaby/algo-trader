@@ -5,10 +5,7 @@ dir = os.path.dirname(os.path.abspath(__file__))
 status_dir = os.path.join(dir, 'status')
 
 for file in os.listdir(status_dir):
-    # Construct the full path to the entry
-    print(file)
-    # if os.path.isfile(entry_path):
-    #     print(entry_path)
+    
 
 
 # html_table = df.to_html()

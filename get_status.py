@@ -18,7 +18,7 @@ TRADING_ENVIRONMENT = TrdEnv.SIMULATE  # Trading environment: REAL / SIMULATE
 TRADING_MARKET = TrdMarket.HK  # Transaction market authority, used to filter accounts
 TRADING_PERIOD = KLType.K_1M  # Underlying trading time period
 
-STATUS_FILENAME = 'status/' + str(datetime.now().date()) + '_status.txt'
+STATUS_FILENAME = 'status/' + str(datetime.now().date()) + '_status.csv'
 STATUS_PATH = os.path.join(DIR, STATUS_FILENAME)
 
 status_list = []
