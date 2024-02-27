@@ -17,7 +17,7 @@ TRADING_ENVIRONMENT = TrdEnv.SIMULATE  # Trading environment: REAL / SIMULATE
 TRADING_MARKET = TrdMarket.CN  # Transaction market authority, used to filter accounts
 TRADING_PERIOD = KLType.K_1M  # Underlying trading time period
 
-LOG_FILENAME = 'log/log.txt'
+LOG_FILENAME = 'log/trader_log.csv'
 LOG_PATH = os.path.join(DIR, LOG_FILENAME)
 
 ############################ Model Parameters ############################
