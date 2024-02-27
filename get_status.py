@@ -31,12 +31,15 @@ for mkt in [TrdMarket.HK, TrdMarket.US, TrdMarket.CN]:
         # print(data['power'].values.tolist())  # convert to list
     else:
         print('accinfo_query error: ', data)
-    trd_ctx.close()  # Close the current connection
 
 status_df = pd.concat(status_list, ignore_index=True)
 status_df.insert(0, 'market', ['HK', 'US', 'CN'])
 
 status_df.to_csv(STATUS_PATH)
 
+trd_ctx.close()  # Close the current connection
 if __name__ == '__main__':
     print(status_df)
+    # print(status_df.columns)
+    # print(status_df.total_assets[0])
+    
