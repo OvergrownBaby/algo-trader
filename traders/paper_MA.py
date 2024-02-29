@@ -3,6 +3,7 @@ import os
 from futu import *
 import pandas as pd
 import matplotlib.pyplot as plt
+# import classes
 
 ############################ Global Variables ############################
 FUTU_OPEND_ADDRESS = '127.0.0.1'  # Futu OpenD listening address
@@ -14,7 +15,7 @@ PW_PATH = os.path.join(PDIR, 'passwords/futu_trd_pw.txt')
 TRADING_PWD = next(open(PW_PATH, 'r')).strip()  # Trading password, used to unlock trading for real trading environment
 
 TRADING_ENVIRONMENT = TrdEnv.SIMULATE  # Trading environment: REAL / SIMULATE
-TRADING_MARKET = TrdMarket.CN  # Transaction market authority, used to filter accounts
+TRADING_MARKET = TrdMarket.HK  # Transaction market authority, used to filter accounts
 TRADING_PERIOD = KLType.K_1M  # Underlying trading time period
 
 LOG_FILENAME = 'log/trader_log.csv'
@@ -22,10 +23,10 @@ LOG_PATH = os.path.join(DIR, LOG_FILENAME)
 
 ############################ Model Parameters ############################
 
-TRADING_SECURITY = 'SZ.002493'  # Rongsheng
-TRADING_SECURITIES = []
+TRADING_SECURITIES = ['HK.01099', 'HK.00700']
 FAST_MOVING_AVERAGE = 12
 SLOW_MOVING_AVERAGE = 26
+MACD_THRESHOLD = 0.003
 
 
 #Create context objects
@@ -80,9 +81,8 @@ def get_holding_position(code):
     else:
         for qty in data['qty'].values.tolist():
             holding_position += qty
-        print('[持仓状态] {} 的持仓数量为：{}'.format(TRADING_SECURITY, holding_position))
+        print('[STATUS] {} 的持仓数量为：{}'.format(code, holding_position))
     return holding_position
-
 
 
 def ma_strat(code):
@@ -134,8 +134,9 @@ def ma_strat(code):
 # todo: make a class for each strategy
 # todo: strategy_execution for multiple stocks: write a function to create a dict stocks{key: stock, value: [strats]}, then execute(strat) for strat in stock.values for stock in stocks
 # todo: stock selection
+# if the program starts running after MACD > 0 and after first death cross, first death cross doesn't get updated, is this ok
 def macd_strat(code, fast_param, slow_param, signal_param):
-    print("Executing MACD strategy.")
+    print("[STRATEGY] Executing MACD strategy.")
     if not is_normal_trading_time(code):
         return
 
@@ -145,47 +146,48 @@ def macd_strat(code, fast_param, slow_param, signal_param):
         fast_param = tmp
     ret, data = quote_context.get_cur_kline(code=code, num=slow_param + 1, ktype=TRADING_PERIOD)
     if ret != RET_OK:
-        print('Get candlestick value failed: ', data)
+        print('[ERROR] Get candlestick value failed: ', data)
         return 0
     
-    # calculate fast_ema, slow_ema and diff
     # params are usually (6, 13, 5) or (12, 26, 9)
 
     seen_first_death_cross = 0
     
     # todo: add budget condition for determining death cross, account for if program starts running when MACD above water
-    # todo: make a strat class to reuse functions such as get_indicators
+        # solution: don't need to worry, because the if program starts when MACD < 0, issue doesn't exist; if program starts when MACD > 0, then it doesn't do anything until MACD < 0
+    # todo: make a an abstract strat class to reuse and require functions such as get_indicators
     # todo: write a class for backtesting each strategy
     def execute_strat():
+        nonlocal seen_first_death_cross
         proportion = 0.1
         holding_position = get_holding_position(code)
         shares_per_lot = get_lot_size(code)
         total_budget = get_cash()*proportion
-        print("[Strategy]", proportion, "of total cash allocated to", TRADING_SECURITY)
-        lots_can_buy = total_budget // (get_lot_size(TRADING_SECURITY) * get_ask_and_bid(TRADING_SECURITY)[0])
+        print("[STRATEGY]", proportion, "of total cash allocated to", code)
+        lots_can_buy = total_budget // (get_lot_size(code) * get_ask_and_bid(code)[0])
     
-        macd_today = data.at[data.index[-1], 'macd']
-        macd_ytd = data.at[data.index[-2], 'macd']
-        macd_signal_today = data.at[data.index[-1], 'macd_signal']
-        macd_signal_ytd = data.at[data.index[-2], 'macd_signal']
+        macd_today = data.at[data.index[-1], 'diff']
+        macd_ytd = data.at[data.index[-2], 'diff']
+        macd_signal_today = data.at[data.index[-1], 'dea']
+        macd_signal_ytd = data.at[data.index[-2], 'dea']
 
         if holding_position == 0:
-            if macd_today > 0 and macd_ytd < 0: # 上水 and position == 0
-                print("MACD > 0, buying half of allocated budget.")
+            if macd_today > MACD_THRESHOLD and macd_ytd < -MACD_THRESHOLD: # 上水 and position == 0
+                print("[STRATEGY] MACD > 0, buying half of allocated budget.")
                 open_position(code, lots_can_buy // 2 * shares_per_lot) # buy first half of budget
         else:
-            if macd_today < 0:                                       # position > 0 and 水下
-                print("MACD < 0, selling all of allocated budget.")
+            if macd_today < -MACD_THRESHOLD:                                       # position > 0 and 水下
+                print("[STRATEGY] MACD < 0, selling all of allocated budget.")
                 close_position(code, holding_position)               # sell everything
             else:                                                    # position > 0 and above water
                 if (macd_ytd < macd_signal_ytd) and (macd_today > macd_signal_today): # MACD 金叉
-                    print("MACD > 0 and golden cross. Buying second half of allocated budget")
+                    print("[STRATEGY] MACD > 0 and golden cross. Buying second half of allocated budget")
                     open_position(code, lots_can_buy // 2 * shares_per_lot)
                 if (macd_ytd > macd_signal_ytd) and (macd_today < macd_signal_today): # MACD 死叉
                     if seen_first_death_cross == 0:
                         seen_first_death_cross = 1
                     else:
-                        print("MACD < 0 and death cross. Selling second half of allocated budget")
+                        print("[STRATEGY] MACD < 0 and death cross. Selling second half of allocated budget")
                         close_position(code, lots_can_buy // 2 * shares_per_lot)
 
     def get_macd():
@@ -199,16 +201,16 @@ def macd_strat(code, fast_param, slow_param, signal_param):
             data.at[i, 'slow_ema'] = (data.at[i, 'close'] - data.at[i - 1, 'slow_ema']) * slow_multiplier + data.at[i - 1, 'slow_ema']
             data.at[i, 'fast_ema'] = (data.at[i, 'close'] - data.at[i - 1, 'fast_ema']) * fast_multiplier + data.at[i - 1, 'fast_ema']
             
-        data['macd'] = data['fast_ema'] - data['slow_ema']
+        data['diff'] = data['fast_ema'] - data['slow_ema']
         
         signal_multiplier = 2 / (1 + signal_param)
 
-        # Initialize the first value of 'macd_signal' based on the first 'macd' value.
-        data.at[0, 'macd_signal'] = data.at[0, 'macd']
+        # Initialize the first value of 'dea' based on the first 'macd' value.
+        data.at[0, 'dea'] = data.at[0, 'diff']
 
-        # Calculate 'macd_signal' for the rest of the DataFrame.
+        # Calculate 'dea' for the rest of the DataFrame.
         for i in range(1, len(data)):
-            data.at[i, 'macd_signal'] = (data.at[i, 'macd'] - data.at[i - 1, 'macd_signal']) * signal_multiplier + data.at[i - 1, 'macd_signal']
+            data.at[i, 'dea'] = (data.at[i, 'diff'] - data.at[i - 1, 'dea']) * signal_multiplier + data.at[i - 1, 'diff']
 
     def plot_macd():
         # plot k line and ema lines
@@ -243,7 +245,7 @@ def open_position(code, open_quantity):
     ask, bid = get_ask_and_bid(code)
 
     # Check whether buying power is enough
-    if is_valid_quantity(TRADING_SECURITY, open_quantity, ask):
+    if is_valid_quantity(code, open_quantity, ask):
         # Place order
         ret, data = trade_context.place_order(price=ask, qty=open_quantity, code=code, trd_side=TrdSide.BUY,
                                               order_type=OrderType.NORMAL, trd_env=TRADING_ENVIRONMENT,
@@ -268,7 +270,11 @@ def close_position(code, quantity):
     # Close position
     ret, data = trade_context.place_order(price=bid, qty=quantity, code=code, trd_side=TrdSide.SELL,
                    order_type=OrderType.NORMAL, trd_env=TRADING_ENVIRONMENT, remark='moving_average_strategy')
-    data.to_csv(LOG_PATH, mode='a', sep=',', index=False)
+    
+    if ret == RET_OK:
+        data.to_csv(LOG_PATH, mode='a', sep=',', index=False)
+    else:
+        print('[ERROR]', data)
 
     if ret != RET_OK:
         print('Close position failed: ', data)
@@ -350,8 +356,16 @@ def on_bar_open():
     # Print seperate line
     print('*****************************************')
     # ma_strat('HK.00700')
-    print('[Update] New candlestick, current price is', get_ask_and_bid(TRADING_SECURITY)[0])
-    macd_strat(TRADING_SECURITY, 12, 26, 9)
+    
+    for security in TRADING_SECURITIES:
+        ret, data = quote_context.get_market_snapshot(security)
+        if ret == RET_OK:
+            time = data['update_time']
+            price = data['last_price']
+            print(f'[{time}] New candlestick, current price of {security} is', price)
+        else:
+            print('[ERROR] getting market snapshot failed.')
+        macd_strat(security, 12, 26, 9)
 
 
 # Run once when an order is filled
@@ -361,7 +375,7 @@ def on_fill(data):
 
 # Run once when the status of an order changes
 def on_order_status(data):
-    if data['code'][0] == TRADING_SECURITY:
+    if data['code'][0] in TRADING_SECURITIES:
         show_order_status(data)
 
 
@@ -396,6 +410,7 @@ class OnFillClass(TradeDealHandlerBase):
         if ret == RET_OK:
             on_fill(data)
 
+
 # Main function
 if __name__ == '__main__':
     # Strategy initialization
@@ -411,5 +426,5 @@ if __name__ == '__main__':
         trade_context.set_handler(OnFillClass())
 
         # Subscribe tick-by-tick, candlestick and order book of the underlying trading security
-        quote_context.subscribe(code_list=[TRADING_SECURITY], subtype_list=[SubType.TICKER, SubType.ORDER_BOOK, TRADING_PERIOD])
+        quote_context.subscribe(code_list=TRADING_SECURITIES, subtype_list=[SubType.TICKER, SubType.ORDER_BOOK, TRADING_PERIOD])
 
