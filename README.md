@@ -92,4 +92,4 @@ Contributions are welcome! Please fork the repository and submit pull requests w
 
 ## License
 
-Specify the license here, e.g., MIT, GPL, etc.
+MIT
