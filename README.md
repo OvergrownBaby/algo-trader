@@ -31,25 +31,25 @@ To manage all trading scripts, use the `run_traders.sh` script with the followin
 
 - **To Start All Scripts:**
 
-./run_traders.sh start
+`./run_traders.sh start`
 
 - Exclusions can be specified as additional arguments.
 
 - **To Restart All Scripts:**
 
-./run_traders.sh stop
+`./run_traders.sh stop`
 
 - Exclusions can be specified as additional arguments.
 
 - **To Restart All Scripts:**
 
-./run_traders.sh restart
+`./run_traders.sh restart`
 
 - Exclusions can be specified as additional arguments.
 
 - **To Start a Specific Script:**
 
-./run_traders.sh -s script_name.py
+`./run_traders.sh -s script_name.py`
 
 
 ### Managing `get_status.py`
@@ -58,17 +58,17 @@ For individual management of the `get_status.py` script, use the `run_get_status
 
 - **Start `get_status.py`:**
 
-./run_get_status.sh start
+`./run_get_status.sh start`
 
 
 - **Stop `get_status.py`:**
 
-./run_get_status.sh stop
+`./run_get_status.sh stop`
 
 
 - **Restart `get_status.py`:**
 
-./run_get_status.sh restart
+`./run_get_status.sh restart`
 
 
 ## Directories and Files
