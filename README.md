@@ -75,11 +75,11 @@ For individual management of the `get_status.py` script, use the `run_get_status
 
 - **Logs Directory**: Output and error logs are saved in `./logs`.
 
-LOG_DIR="./logs"
+`LOG_DIR="./logs"`
 
 - **PID Directory**: Process IDs are tracked in `./pids` for global script management and in `./script.pid` for `get_status.py`.
 
-PID_DIR="./pids"
+`PID_DIR="./pids"`
 
 
 ## Customization
