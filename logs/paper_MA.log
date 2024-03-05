@@ -1,3 +1,0 @@
-[0;30m2024-03-05 17:06:34,082 | 43991 | [open_context_base.py] _send_init_connect_sync:311: InitConnect ok: conn_id=1, host=127.0.0.1, port=11111, user_id=16150358[0m
-[0;30m2024-03-05 17:06:34,097 | 43991 | [open_context_base.py] _send_init_connect_sync:311: InitConnect ok: conn_id=2, host=127.0.0.1, port=11111, user_id=16150358[0m
-2024-03-05 17:06:34 - root - INFO - ************  Strategy Starts ***********
