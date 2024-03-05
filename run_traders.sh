@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # Directories and paths
-LOG_DIR="./logs"
+# LOG_DIR="./logs"
 PID_DIR="./pids"
 SCRIPT_DIR="traders"
 PYTHON_BIN="../venv/algo-trader/bin/python"
 
 # Ensure log and PID directories exist
-mkdir -p "$LOG_DIR" "$PID_DIR"
+# mkdir -p "$LOG_DIR" "$PID_DIR"
 
 # Function to check if an array contains a value
 contains_element () {
