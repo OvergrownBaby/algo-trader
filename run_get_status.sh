@@ -4,12 +4,12 @@
 
 PID_FILE="./script.pid"
 LOG_FILE="./status/status.log"
-SCRIPT="./get_status.py"
+SCRIPT="get_status"
 PYTHON_BIN="../venv/algo-trader/bin/python"
 
 start_script() {
   echo "Starting get_status.py..."
-  nohup $PYTHON_BIN -u $SCRIPT > $LOG_FILE 2>&1 &
+  nohup $PYTHON_BIN -u -m $SCRIPT >> $LOG_FILE 2>&1 &
   echo $! > $PID_FILE
   echo "Script started with PID $(cat $PID_FILE)"
 }

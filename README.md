@@ -23,6 +23,10 @@ This repository contains shell scripts designed for managing the execution of Py
 
 Ensure the Python virtual environment is properly set up and accessible from the specified paths in the scripts.
 
+Store the trading password for your Futu account as an environment variable (for security reasons).
+Linux/MacOS: `export FUTU_TRD_PW='your_password_here'`
+Windows: `set FUTU_TRD_PW=your_password_here`
+
 ## Usage
 
 ### Managing All Trading Scripts
@@ -50,6 +54,10 @@ To manage all trading scripts, use the `run_traders.sh` script with the followin
 - **To Start a Specific Script:**
 
 `./run_traders.sh -s script_name.py`
+
+- **To run just the trader script:**
+
+`andy@Andys-MacBook-Pro algo-trader % python3 -m traders.paper_MA`
 
 
 ### Managing `get_status.py`

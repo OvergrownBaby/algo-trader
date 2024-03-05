@@ -3,7 +3,7 @@
 # Directories and paths
 LOG_DIR="./logs"
 PID_DIR="./pids"
-SCRIPT_DIR="./traders"
+SCRIPT_DIR="traders"
 PYTHON_BIN="../venv/algo-trader/bin/python"
 
 # Ensure log and PID directories exist
@@ -23,9 +23,12 @@ start_script() {
   log_file="$LOG_DIR/${script_name%.*}.log"
   pid_file="$PID_DIR/${script_name%.*}.pid"
   echo "Starting $script_name..."
-  nohup $PYTHON_BIN -u "$1" > "$log_file" 2>&1 &
+  module_path="${1%.py}"
+  module_name="${module_path//\//.}"
+  nohup $PYTHON_BIN -u -m $module_name >> "$log_file" 2>&1 & # Use if log without logging module
+  # nohup $PYTHON_BIN -u -m $module_name &
   echo $! > "$pid_file"
-  echo "$script_name started with PID $(cat "$pid_file")"
+  printf "%s started with PID %s.\n\n" "$script_name" "$(cat "$pid_file")"
 }
 
 # Stop a specific script
@@ -37,7 +40,7 @@ stop_script() {
     echo "Stopping script with PID $PID..."
     kill "$PID"
     rm "$pid_file"
-    echo "Script $script_name stopped."
+    printf "Script %s stopped.\n\n" "$script_name"
   else
     echo "PID file for $script_name does not exist. Script is not running or was already stopped."
   fi
