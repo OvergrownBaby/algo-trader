@@ -93,7 +93,7 @@ def get_holding_position(code):
         for qty in data['qty'].values.tolist():
             holding_position += qty
         # print('[STATUS] {} 的持仓数量为：{}'.format(code, holding_position))
-        logging.info(f'[POSITION] Holding {holding_position} of {code}')
+        logging.info(f'[POSITION] Holding {holding_position} shares of {code}')
     return holding_position
 
 
@@ -181,9 +181,10 @@ def macd_strat(code, fast_param, slow_param, signal_param):
         proportion = 0.1
         holding_position = get_holding_position(code)
         shares_per_lot = get_lot_size(code)
-        total_budget = get_cash()*proportion
+        total_cash = get_cash()
+        total_budget = total_cash*proportion
         # print("[STRATEGY]", proportion, "of total cash allocated to", code)
-        logging.info(f"[ALLOCATE] {proportion} of total cash allocated to {code}")
+        logging.info(f"[ALLOCATE] {proportion} of {total_cash} allocated to {code}")
         lots_can_buy = total_budget // (get_lot_size(code) * get_ask_and_bid(code)[0])
     
         macd_today = data.at[data.index[-1], 'diff']
