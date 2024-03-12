@@ -21,6 +21,8 @@ This repository contains shell scripts designed for managing the execution of Py
 
 ## Setup
 
+`pip install futu-api` 
+
 Ensure the Python virtual environment is properly set up and accessible from the specified paths in the scripts.
 
 Store the trading password for your Futu account as an environment variable (for security reasons).

@@ -93,7 +93,7 @@ def get_holding_position(code):
         for qty in data['qty'].values.tolist():
             holding_position += qty
         # print('[STATUS] {} 的持仓数量为：{}'.format(code, holding_position))
-        logging.info(f'[STATUS] Holding position of {code} is {holding_position}')
+        logging.info(f'[POSITION] Holding {holding_position} of {code}')
     return holding_position
 
 
@@ -154,7 +154,7 @@ def ma_strat(code):
 # if the program starts running after MACD > 0 and after first death cross, first death cross doesn't get updated, is this ok
 def macd_strat(code, fast_param, slow_param, signal_param):
     # print("[STRATEGY] Executing MACD strategy.")
-    logging.info("[STRATEGY] Executing MACD strategy.")
+    logging.info("[STRATEGY] MACD")
     if not is_normal_trading_time(code):
         return
 
@@ -183,7 +183,7 @@ def macd_strat(code, fast_param, slow_param, signal_param):
         shares_per_lot = get_lot_size(code)
         total_budget = get_cash()*proportion
         # print("[STRATEGY]", proportion, "of total cash allocated to", code)
-        logging.info(f"[STRATEGY] {proportion} of total cash allocated to {code}")
+        logging.info(f"[ALLOCATE] {proportion} of total cash allocated to {code}")
         lots_can_buy = total_budget // (get_lot_size(code) * get_ask_and_bid(code)[0])
     
         macd_today = data.at[data.index[-1], 'diff']
@@ -194,24 +194,24 @@ def macd_strat(code, fast_param, slow_param, signal_param):
         if holding_position == 0:
             if macd_today > MACD_THRESHOLD and macd_ytd < -MACD_THRESHOLD: # 上水 and position == 0
                 # print("[STRATEGY] MACD > 0, buying half of allocated budget.")
-                logging.info("[STRATEGY] MACD > 0, buying half of allocated budget.")
+                logging.info("[BUY] MACD > 0, buying half of allocated budget.")
                 open_position(code, lots_can_buy // 2 * shares_per_lot) # buy first half of budget
         else:
             if macd_today < -MACD_THRESHOLD:                                       # position > 0 and 水下
                 # print("[STRATEGY] MACD < 0, selling all of allocated budget.")
-                logging.info("[STRATEGY] MACD < 0, selling all of allocated budget.")
+                logging.info("[SELL] MACD < 0, selling all of allocated budget.")
                 close_position(code, holding_position)               # sell everything
             else:                                                    # position > 0 and above water
                 if (macd_ytd < macd_signal_ytd) and (macd_today > macd_signal_today): # MACD 金叉
                     # print("[STRATEGY] MACD > 0 and golden cross. Buying second half of allocated budget")
-                    logging.info("[STRATEGY] MACD > 0 and golden cross. Buying second half of allocated budget")
+                    logging.info("[BUY] MACD > 0 and golden cross. Buying second half of allocated budget")
                     open_position(code, lots_can_buy // 2 * shares_per_lot)
                 if (macd_ytd > macd_signal_ytd) and (macd_today < macd_signal_today): # MACD 死叉
                     if seen_first_death_cross == 0:
                         seen_first_death_cross = 1
                     else:
                         # print("[STRATEGY] MACD < 0 and death cross. Selling second half of allocated budget")
-                        logging.info("[STRATEGY] MACD < 0 and death cross. Selling second half of allocated budget")
+                        logging.info("[SELL] MACD < 0 and death cross. Selling second half of allocated budget")
                         close_position(code, lots_can_buy // 2 * shares_per_lot)
 
     def get_macd():
@@ -400,7 +400,7 @@ def on_bar_open():
             time = data['update_time']
             price = data['last_price'][0]
             # print(f'[{time}] New candlestick, current price of {security} is', price)
-            logging.info(f'[UPDATE] New price of {security}: {price}')
+            logging.info(f'[UPDATE] {security} price: {price}')
         else:
             # print('[ERROR] getting market snapshot failed.')
             logging.error('getting market snapshot failed.')
