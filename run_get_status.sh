@@ -5,7 +5,7 @@
 PID_FILE="./script.pid"
 LOG_FILE="./status/status.log"
 SCRIPT="get_status"
-PYTHON_BIN="../venv/algo-trader/bin/python"
+PYTHON_BIN="python3"
 
 start_script() {
   echo "Starting get_status.py..."

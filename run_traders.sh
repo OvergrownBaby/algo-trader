@@ -4,7 +4,7 @@
 # LOG_DIR="./logs"
 PID_DIR="./pids"
 SCRIPT_DIR="traders"
-PYTHON_BIN="../venv/algo-trader/bin/python"
+PYTHON_BIN="python3"
 
 # Ensure log and PID directories exist
 # mkdir -p "$LOG_DIR" "$PID_DIR"

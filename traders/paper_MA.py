@@ -93,7 +93,7 @@ def get_holding_position(code):
         for qty in data['qty'].values.tolist():
             holding_position += qty
         # print('[STATUS] {} 的持仓数量为：{}'.format(code, holding_position))
-        logging.info(f'Holding position of {code} is {holding_position}')
+        logging.info(f'[STATUS] Holding position of {code} is {holding_position}')
     return holding_position
 
 
@@ -398,9 +398,9 @@ def on_bar_open():
         ret, data = quote_context.get_market_snapshot(security)
         if ret == RET_OK:
             time = data['update_time']
-            price = data['last_price']
+            price = data['last_price'][0]
             # print(f'[{time}] New candlestick, current price of {security} is', price)
-            logging.info(f'[{time}] New candlestick, current price of {security} is {price}')
+            logging.info(f'[UPDATE] New price of {security}: {price}')
         else:
             # print('[ERROR] getting market snapshot failed.')
             logging.error('getting market snapshot failed.')

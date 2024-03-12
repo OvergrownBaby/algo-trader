@@ -1,2 +1,64 @@
-2024-03-05 17:08:54 - root - INFO - ************  Strategy Starts ***********
-2024-03-05 17:13:52 - root - INFO - ************  Strategy Starts ***********
+2024-03-12 13:38:07 - root - INFO - ************  Strategy Starts ***********
+2024-03-12 13:39:00 - root - INFO - *****************************************
+2024-03-12 13:39:00 - root - INFO - [UPDATE] New price of HK.01099: 22.0
+2024-03-12 13:39:00 - root - INFO - [STRATEGY] Executing MACD strategy.
+2024-03-12 13:39:00 - root - INFO - [STATUS] Holding position of HK.01099 is 0
+2024-03-12 13:39:00 - root - INFO - [STRATEGY] 0.1 of total cash allocated to HK.01099
+2024-03-12 13:39:00 - root - INFO - [UPDATE] New price of HK.00700: 288.8
+2024-03-12 13:39:00 - root - INFO - [STRATEGY] Executing MACD strategy.
+2024-03-12 13:39:00 - root - INFO - [STATUS] Holding position of HK.00700 is 0
+2024-03-12 13:39:01 - root - INFO - [STRATEGY] 0.1 of total cash allocated to HK.00700
+2024-03-12 13:40:00 - root - INFO - *****************************************
+2024-03-12 13:40:00 - root - INFO - [UPDATE] New price of HK.01099: 22.0
+2024-03-12 13:40:00 - root - INFO - [STRATEGY] Executing MACD strategy.
+2024-03-12 13:40:00 - root - INFO - [STATUS] Holding position of HK.01099 is 0
+2024-03-12 13:40:00 - root - INFO - [STRATEGY] 0.1 of total cash allocated to HK.01099
+2024-03-12 13:40:01 - root - INFO - [UPDATE] New price of HK.00700: 289.2
+2024-03-12 13:40:01 - root - INFO - [STRATEGY] Executing MACD strategy.
+2024-03-12 13:40:01 - root - INFO - [STATUS] Holding position of HK.00700 is 0
+2024-03-12 13:40:02 - root - INFO - [STRATEGY] 0.1 of total cash allocated to HK.00700
+2024-03-12 13:41:00 - root - INFO - *****************************************
+2024-03-12 13:41:00 - root - INFO - [UPDATE] New price of HK.01099: 22.0
+2024-03-12 13:41:00 - root - INFO - [STRATEGY] Executing MACD strategy.
+2024-03-12 13:41:00 - root - INFO - [STATUS] Holding position of HK.01099 is 0
+2024-03-12 13:41:01 - root - INFO - [STRATEGY] 0.1 of total cash allocated to HK.01099
+2024-03-12 13:41:01 - root - INFO - [UPDATE] New price of HK.00700: 289.2
+2024-03-12 13:41:01 - root - INFO - [STRATEGY] Executing MACD strategy.
+2024-03-12 13:41:01 - root - INFO - [STATUS] Holding position of HK.00700 is 0
+2024-03-12 13:41:01 - root - INFO - [STRATEGY] 0.1 of total cash allocated to HK.00700
+2024-03-12 13:42:00 - root - INFO - *****************************************
+2024-03-12 13:42:00 - root - INFO - [UPDATE] New price of HK.01099: 22.0
+2024-03-12 13:42:00 - root - INFO - [STRATEGY] Executing MACD strategy.
+2024-03-12 13:42:00 - root - INFO - [STATUS] Holding position of HK.01099 is 0
+2024-03-12 13:42:01 - root - INFO - [STRATEGY] 0.1 of total cash allocated to HK.01099
+2024-03-12 13:42:01 - root - INFO - [UPDATE] New price of HK.00700: 289.0
+2024-03-12 13:42:01 - root - INFO - [STRATEGY] Executing MACD strategy.
+2024-03-12 13:42:01 - root - INFO - [STATUS] Holding position of HK.00700 is 0
+2024-03-12 13:42:02 - root - INFO - [STRATEGY] 0.1 of total cash allocated to HK.00700
+2024-03-12 13:43:00 - root - INFO - *****************************************
+2024-03-12 13:43:00 - root - INFO - [UPDATE] New price of HK.01099: 22.0
+2024-03-12 13:43:00 - root - INFO - [STRATEGY] Executing MACD strategy.
+2024-03-12 13:43:00 - root - INFO - [STATUS] Holding position of HK.01099 is 0
+2024-03-12 13:43:00 - root - INFO - [STRATEGY] 0.1 of total cash allocated to HK.01099
+2024-03-12 13:43:00 - root - INFO - [UPDATE] New price of HK.00700: 289.2
+2024-03-12 13:43:00 - root - INFO - [STRATEGY] Executing MACD strategy.
+2024-03-12 13:43:00 - root - INFO - [STATUS] Holding position of HK.00700 is 0
+2024-03-12 13:43:00 - root - INFO - [STRATEGY] 0.1 of total cash allocated to HK.00700
+2024-03-12 13:44:00 - root - INFO - *****************************************
+2024-03-12 13:44:00 - root - INFO - [UPDATE] New price of HK.01099: 22.0
+2024-03-12 13:44:00 - root - INFO - [STRATEGY] Executing MACD strategy.
+2024-03-12 13:44:01 - root - INFO - [STATUS] Holding position of HK.01099 is 0
+2024-03-12 13:44:01 - root - INFO - [STRATEGY] 0.1 of total cash allocated to HK.01099
+2024-03-12 13:44:02 - root - INFO - [UPDATE] New price of HK.00700: 289.0
+2024-03-12 13:44:02 - root - INFO - [STRATEGY] Executing MACD strategy.
+2024-03-12 13:44:02 - root - INFO - [STATUS] Holding position of HK.00700 is 0
+2024-03-12 13:44:03 - root - INFO - [STRATEGY] 0.1 of total cash allocated to HK.00700
+2024-03-12 13:45:00 - root - INFO - *****************************************
+2024-03-12 13:45:00 - root - INFO - [UPDATE] New price of HK.01099: 22.05
+2024-03-12 13:45:00 - root - INFO - [STRATEGY] Executing MACD strategy.
+2024-03-12 13:45:00 - root - INFO - [STATUS] Holding position of HK.01099 is 0
+2024-03-12 13:45:00 - root - INFO - [STRATEGY] 0.1 of total cash allocated to HK.01099
+2024-03-12 13:45:02 - root - INFO - [UPDATE] New price of HK.00700: 289.0
+2024-03-12 13:45:02 - root - INFO - [STRATEGY] Executing MACD strategy.
+2024-03-12 13:45:02 - root - INFO - [STATUS] Holding position of HK.00700 is 0
+2024-03-12 13:45:02 - root - INFO - [STRATEGY] 0.1 of total cash allocated to HK.00700

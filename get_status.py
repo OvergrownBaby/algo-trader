@@ -9,10 +9,7 @@ FUTU_OPEND_PORT = 11111  # Futu OpenD listening port
 
 DIR = os.path.dirname(os.path.abspath(__file__))
 PDIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PW_FILENAME = 'passwords/futu_trd_pw.txt'
-PW_PATH = os.path.join(PDIR, PW_FILENAME)
-TRADING_PWD = next(open(PW_PATH, 'r')).strip()  # Trading password, used to unlock trading for real trading environment
-print(PW_PATH)
+TRADING_PWD = os.getenv('FUTU_TRD_PW')  # Trading password, used to unlock trading for real trading environment
 
 TRADING_ENVIRONMENT = TrdEnv.SIMULATE  # Trading environment: REAL / SIMULATE
 TRADING_MARKET = TrdMarket.HK  # Transaction market authority, used to filter accounts
