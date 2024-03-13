@@ -4,6 +4,7 @@
 ### backtest: figure out where trading context gets its data then replace with our own database or write a function to fetch data from our database instead
 ### figure out how to import, change password access to config file inside project directory but rmb to .gitignore it
 ### package dependencies so i don't need a venv and can just pip install
+
 import os
 from futu import *
 import logging
@@ -20,18 +21,32 @@ DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PDIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 TRADING_PWD = os.getenv('FUTU_TRD_PW')  # Trading password, used to unlock trading for real trading environment
 
-TRADING_ENVIRONMENT = TrdEnv.SIMULATE  # Trading environment: REAL / SIMULATE
-TRADING_MARKET = TrdMarket.HK  # Transaction market authority, used to filter accounts
+TRADING_ENVIRONMENT = TrdEnv.REAL  # Trading environment: REAL / SIMULATE
+TRADING_MARKET = TrdMarket.CN  # Transaction market authority, used to filter accounts
 TRADING_PERIOD = KLType.K_1M  # Underlying trading time period
 
-LOG_FILENAME = 'log/trader_log.csv'
-LOG_PATH = os.path.join(DIR, LOG_FILENAME)
+TRADER_NAME = os.path.splitext(os.path.basename(os.path.abspath(__file__)))[0]  # Trader name
+
+############################ Paths ############################
+TRANS_LOG_PATH = os.path.join(DIR, 'transactions/transactions.csv') # transaction log path
+if not os.path.exists(os.path.dirname(TRANS_LOG_PATH)):
+    os.makedirs(os.path.dirname(TRANS_LOG_PATH), exist_ok=True)
+
+TRADER_LOG_DIR = os.path.join(DIR, 'trader_logs')
+if not os.path.exists(TRADER_LOG_DIR):
+    os.makedirs(TRADER_LOG_DIR, exist_ok=True)
+
+############################ Loggers ############################
+    
+trader_logger = logging.getLogger(TRADER_NAME)
+event_logger = logging.getLogger(f'{TRADER_NAME}_event')
 
 ############################ Model Parameters ############################
 
 TRADING_SECURITIES = ['HK.01099', 'HK.00700']
 FAST_MOVING_AVERAGE = 12
 SLOW_MOVING_AVERAGE = 26
+SIGNAL_PARAM = 9
 MACD_THRESHOLD = 0.003
 
 
@@ -45,10 +60,10 @@ def unlock_trade():
     if TRADING_ENVIRONMENT == TrdEnv.REAL:
         ret, data = trade_context.unlock_trade(TRADING_PWD)
         if ret != RET_OK:
-            logging.error(f'Unlock trade failed: {data}')
+            trader_logger.error(f'Unlock trade failed: {data}')
             # print('Unlock trade failed: ', data)
             return False
-        logging.info('Unlock Trade Success!')
+        trader_logger.info('Unlock Trade Success!')
         # print('Unlock Trade success!')
     return True
 
@@ -57,7 +72,7 @@ def unlock_trade():
 def is_normal_trading_time(code):
     ret, data = quote_context.get_market_state([code])
     if ret != RET_OK:
-        logging.error(f'Get market state failed: {data}')
+        trader_logger.error(f'Get market state failed: {data}')
         # print('Get market state failed: ', data)
         return False
     market_state = data['market_state'][0]
@@ -76,7 +91,7 @@ def is_normal_trading_time(code):
                     market_state == MarketState.FUTURE_BREAK_OVER  or \
                     market_state == MarketState.NIGHT_OPEN:
         return True
-    logging.info('It is not regular trading hours.')
+    trader_logger.info('It is not regular trading hours.')
     # print('It is not regular trading hours.')
     return False
 
@@ -87,13 +102,13 @@ def get_holding_position(code):
     ret, data = trade_context.position_list_query(code=code, trd_env=TRADING_ENVIRONMENT)
     if ret != RET_OK:
         # print('获取持仓数据失败：', data)
-        logging.error(f'Get holding position failed: {data}')
+        trader_logger.error(f'Get holding position failed: {data}')
         return None
     else:
         for qty in data['qty'].values.tolist():
             holding_position += qty
         # print('[STATUS] {} 的持仓数量为：{}'.format(code, holding_position))
-        logging.info(f'[POSITION] Holding {holding_position} shares of {code}')
+        trader_logger.info(f'[POSITION] Holding {holding_position} shares of {code}')
     return holding_position
 
 
@@ -112,19 +127,19 @@ def ma_strat(code):
     if holding_position == 0:
         if bull_or_bear == 1:
             # print('[Signal] Long signal. Open long positions.')
-            logging.info('[Signal] Long signal. Open long positions.')
+            trader_logger.info('[Signal] Long signal. Open long positions.')
             open_position(code, 1)
         else:
             # print('[Signal] Short signal. Do not open short positions.')
-            logging.info('[Signal] Short signal. Do not open short positions.')
+            trader_logger.info('[Signal] Short signal. Do not open short positions.')
     elif holding_position > 0:
         if bull_or_bear == -1:
             # print('[Signal] Short signal. Close positions.')
-            logging.info('[Signal] Short signal. Close positions.')
+            trader_logger.info('[Signal] Short signal. Close positions.')
             close_position(code, holding_position)
         else:
             # print('[Signal] Long signal. Do not add positions.')
-            logging.info('[Signal] Long signal. Do not add positions.')
+            trader_logger.info('[Signal] Long signal. Do not add positions.')
 
     def calculate_bull_bear(code, fast_param, slow_param):
         if fast_param <= 0 or slow_param <= 0:
@@ -134,7 +149,7 @@ def ma_strat(code):
         ret, data = quote_context.get_cur_kline(code=code, num=slow_param + 1, ktype=TRADING_PERIOD)
         if ret != RET_OK:
             # print('Get candlestick value failed: ', data)
-            logging.error(f'Get candlestick value failed: {data}')
+            trader_logger.error(f'Get candlestick value failed: {data}')
             return 0
         candlestick_list = data['close'].values.tolist()[::-1]
         fast_value = None
@@ -154,7 +169,7 @@ def ma_strat(code):
 # if the program starts running after MACD > 0 and after first death cross, first death cross doesn't get updated, is this ok
 def macd_strat(code, fast_param, slow_param, signal_param):
     # print("[STRATEGY] Executing MACD strategy.")
-    logging.info("[STRATEGY] MACD")
+    trader_logger.info("[STRATEGY] MACD")
     if not is_normal_trading_time(code):
         return
 
@@ -165,7 +180,7 @@ def macd_strat(code, fast_param, slow_param, signal_param):
     ret, data = quote_context.get_cur_kline(code=code, num=slow_param + 1, ktype=TRADING_PERIOD)
     if ret != RET_OK:
         # print('[ERROR] Get candlestick value failed: ', data)
-        logging.error(f'Get candlestick value failed: {data}')
+        trader_logger.error(f'Get candlestick value failed: {data}')
         return 0
     
     # params are usually (6, 13, 5) or (12, 26, 9)
@@ -184,7 +199,7 @@ def macd_strat(code, fast_param, slow_param, signal_param):
         total_cash = get_cash()
         total_budget = total_cash*proportion
         # print("[STRATEGY]", proportion, "of total cash allocated to", code)
-        logging.info(f"[ALLOCATE] {proportion} of {total_cash} allocated to {code}")
+        trader_logger.info(f"[ALLOCATE] {proportion} of {total_cash} allocated to {code}")
         lots_can_buy = total_budget // (get_lot_size(code) * get_ask_and_bid(code)[0])
     
         macd_today = data.at[data.index[-1], 'diff']
@@ -192,27 +207,45 @@ def macd_strat(code, fast_param, slow_param, signal_param):
         macd_signal_today = data.at[data.index[-1], 'dea']
         macd_signal_ytd = data.at[data.index[-2], 'dea']
 
+        if macd_today > 0 and macd_ytd < 0: # 上水 and position == 0
+            event_logger.info("[EVENT] 上水")
+        if macd_today > MACD_THRESHOLD and macd_ytd < -MACD_THRESHOLD: # 上水 and position == 0
+            event_logger.info("[EVENT] threshold 上水")
+
+        if macd_today < -MACD_THRESHOLD:                                       # position > 0 and 水下
+            # print("[STRATEGY] MACD < 0, selling all of allocated budget.")
+            event_logger.info("[EVENT] 落水")
+        else:                                                    # position > 0 and above water
+            if (macd_ytd < macd_signal_ytd) and (macd_today > macd_signal_today): # MACD 金叉
+                event_logger.info("[EVENT] 水上金叉")
+            if (macd_ytd > macd_signal_ytd) and (macd_today < macd_signal_today): # MACD 死叉
+                if seen_first_death_cross == 0:
+                    seen_first_death_cross = 1
+                    event_logger.info("[EVENT] 第一次水上死叉")
+                else:
+                    event_logger.info("[EVENT] 水上死叉")
+
         if holding_position == 0:
             if macd_today > MACD_THRESHOLD and macd_ytd < -MACD_THRESHOLD: # 上水 and position == 0
                 # print("[STRATEGY] MACD > 0, buying half of allocated budget.")
-                logging.info("[BUY] MACD > 0, buying half of allocated budget.")
+                trader_logger.info("[BUY] MACD > 0, buying half of allocated budget.")
                 open_position(code, lots_can_buy // 2 * shares_per_lot) # buy first half of budget
         else:
             if macd_today < -MACD_THRESHOLD:                                       # position > 0 and 水下
                 # print("[STRATEGY] MACD < 0, selling all of allocated budget.")
-                logging.info("[SELL] MACD < 0, selling all of allocated budget.")
+                trader_logger.info("[SELL] MACD < 0, selling all of allocated budget.")
                 close_position(code, holding_position)               # sell everything
             else:                                                    # position > 0 and above water
                 if (macd_ytd < macd_signal_ytd) and (macd_today > macd_signal_today): # MACD 金叉
                     # print("[STRATEGY] MACD > 0 and golden cross. Buying second half of allocated budget")
-                    logging.info("[BUY] MACD > 0 and golden cross. Buying second half of allocated budget")
+                    trader_logger.info("[BUY] MACD > 0 and golden cross. Buying second half of allocated budget")
                     open_position(code, lots_can_buy // 2 * shares_per_lot)
                 if (macd_ytd > macd_signal_ytd) and (macd_today < macd_signal_today): # MACD 死叉
                     if seen_first_death_cross == 0:
                         seen_first_death_cross = 1
                     else:
                         # print("[STRATEGY] MACD < 0 and death cross. Selling second half of allocated budget")
-                        logging.info("[SELL] MACD < 0 and death cross. Selling second half of allocated budget")
+                        trader_logger.info("[SELL] MACD < 0 and death cross. Selling second half of allocated budget")
                         close_position(code, lots_can_buy // 2 * shares_per_lot)
 
     def get_macd():
@@ -260,7 +293,7 @@ def get_ask_and_bid(code):
     ret, data = quote_context.get_order_book(code, num=1)
     if ret != RET_OK:
         # print('Get order book failed: ', data)
-        logging.error(f'Get order book failed: {data}')
+        trader_logger.error(f'Get order book failed: {data}')
         return None, None
     return data['Ask'][0][0], data['Bid'][0][0]
 
@@ -274,15 +307,17 @@ def open_position(code, open_quantity):
     if is_valid_quantity(code, open_quantity, ask):
         # Place order
         ret, data = trade_context.place_order(price=ask, qty=open_quantity, code=code, trd_side=TrdSide.BUY,
-                                              order_type=OrderType.NORMAL, trd_env=TRADING_ENVIRONMENT,
-                                              remark='moving_average_strategy')
-        data.to_csv(LOG_PATH, mode='a', sep=',', index=False)
+                                              order_type=OrderType.NORMAL, trd_env=TRADING_ENVIRONMENT
+                                            #   , remark='moving_average_strategy'
+                                            )
         if ret != RET_OK:
             # print('Open position failed: ', data)
-            logging.error(f'Open position failed: {data}')
+            trader_logger.error(f'Open position failed: {data}')
+        else:
+            data.to_csv(TRANS_LOG_PATH, mode='a', sep=',', index=False)
     else:
         # print('Maximum quantity that can be bought less than transaction quantity.')
-        logging.error('Maximum quantity that can be bought is less than transaction quantity.')
+        trader_logger.error('Maximum quantity that can be bought is less than transaction quantity.')
 
 
 # Close position
@@ -293,7 +328,7 @@ def close_position(code, quantity):
     # Check quantity
     if quantity == 0:
         # print('Invalid order quantity.')
-        logging.error('Invalid order quantity.')
+        trader_logger.error('Invalid order quantity.')
         return False
 
     # Close position
@@ -301,14 +336,10 @@ def close_position(code, quantity):
                    order_type=OrderType.NORMAL, trd_env=TRADING_ENVIRONMENT, remark='moving_average_strategy')
     
     if ret == RET_OK:
-        data.to_csv(LOG_PATH, mode='a', sep=',', index=False)
-    else:
+        data.to_csv(TRANS_LOG_PATH, mode='a', sep=',', index=False)
+    elif ret != RET_OK:
         # print('[ERROR]', data)
-        logging.error(f'Close position failed: {data}')
-
-    if ret != RET_OK:
-        # print('Close position failed: ', data)
-        logging.error(f'Close position failed: {data}')
+        trader_logger.error(f'Close position failed: {data}')
         return False
     return True
 
@@ -320,7 +351,7 @@ def get_lot_size(code):
     ret, data = quote_context.get_market_snapshot([code])
     if ret != RET_OK:
         # print('Get market snapshot failed: ', data)
-        logging.error(f'Get market snapshot failed: {data}')
+        trader_logger.error(f'Get market snapshot failed: {data}')
         return price_quantity
     price_quantity = data['lot_size'][0]
     return price_quantity
@@ -332,7 +363,7 @@ def is_valid_quantity(code, quantity, price):
                                                    trd_env=TRADING_ENVIRONMENT)
     if ret != RET_OK:
         # print('Get max long/short quantity failed: ', data)
-        logging.error(f'Get max long/short quantity failed: {data}')
+        trader_logger.error(f'Get max long/short quantity failed: {data}')
         return False
     max_can_buy = data['max_cash_buy'][0]
     max_can_sell = data['max_sell_short'][0]
@@ -356,7 +387,7 @@ def get_cash():
         # print([col for col in data.columns if data[col][0] != 'N/A' and data[col][0] != 0])
     else:
         # print('accinfo_query error: ', data)
-        logging.error(f'accinfo_query error: {data}')
+        trader_logger.error(f'accinfo_query error: {data}')
 
 # Show order status
 def show_order_status(data):
@@ -367,7 +398,7 @@ def show_order_status(data):
     order_info['TradeSide'] = data['trd_side'][0]
     order_info['Quantity'] = data['qty'][0]
     # print('[OrderStatus]', order_status, order_info)
-    logging.info(f'[OrderStatus] {order_status} {order_info}')
+    trader_logger.info(f'[OrderStatus] {order_status} {order_info}')
 
 
 ############################ Fill in the functions below to finish your trading strategy ############################
@@ -376,10 +407,10 @@ def on_init():
     # unlock trade (no need to unlock for paper trading)
     if not unlock_trade():
         # print("Failed to unlock trade.")
-        logging.error('Failed to unlock trade.')
+        trader_logger.error('Failed to unlock trade.')
         return False
     # print('************  Strategy Starts ***********')
-    logging.info('************  Strategy Starts ***********')
+    trader_logger.info('************  Strategy Starts ***********')
     # get_max_can_buy(TRADING_SECURITY, get_ask_and_bid(TRADING_SECURITY)[0])
     return True
 
@@ -392,20 +423,22 @@ def on_tick():
 def on_bar_open():
     # Print seperate line
     # print('*****************************************')
-    logging.info('*****************************************')
+    trader_logger.info('*****************************************')
     # ma_strat('HK.00700')
     
     for security in TRADING_SECURITIES:
+        trader_logger.info(f'[TICKER] {security}')
         ret, data = quote_context.get_market_snapshot(security)
         if ret == RET_OK:
             time = data['update_time']
             price = data['last_price'][0]
             # print(f'[{time}] New candlestick, current price of {security} is', price)
-            logging.info(f'[UPDATE] {security} price: {price}')
+            trader_logger.info(f'[UPDATE] {security} price: {price}')
         else:
             # print('[ERROR] getting market snapshot failed.')
-            logging.error('getting market snapshot failed.')
-        macd_strat(security, 12, 26, 9)
+            trader_logger.error('getting market snapshot failed.')
+        macd_strat(security, FAST_MOVING_AVERAGE, SLOW_MOVING_AVERAGE, SIGNAL_PARAM)
+        trader_logger.info('\n')
 
 
 # Run once when an order is filled
@@ -450,25 +483,37 @@ class OnFillClass(TradeDealHandlerBase):
         if ret == RET_OK:
             on_fill(data)
 
+
 def setup_logging():
-    trader_name = os.path.splitext(os.path.basename(os.path.abspath(__file__)))[0]
-    log_dir = os.path.join(DIR, 'trader_logs')
-    log_file_path = os.path.join(log_dir, f'{trader_name}.log')
-    if not os.path.exists(log_dir):
-        os.makedirs(log_dir)
+    # normal trader log
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s', '%Y-%m-%d %H:%M:%S')
+    
+    log_file_path = os.path.join(TRADER_LOG_DIR, f'{TRADER_NAME}.log')
+    logger = logging.getLogger(TRADER_NAME)
+    logger.setLevel(logging.INFO)
 
-    logging.basicConfig(filename=log_file_path,
-                        level=logging.INFO,
-                        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                        datefmt='%Y-%m-%d %H:%M:%S')
+    file_handler = logging.FileHandler(log_file_path)
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
 
-    # Also log to console
     console = logging.StreamHandler()
     console.setLevel(logging.INFO)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s', '%Y-%m-%d %H:%M:%S')
     console.setFormatter(formatter)
-    logging.getLogger('').addHandler(console)
+    logger.addHandler(console)
 
+    # important event log
+    event_log_file_path = os.path.join(TRADER_LOG_DIR, f'{TRADER_NAME}_event.log')
+    event_logger = logging.getLogger(f'{TRADER_NAME}_event')
+    event_logger.setLevel(logging.INFO)
+
+    file_handler2 = logging.FileHandler(event_log_file_path)
+    file_handler2.setFormatter(formatter)
+    event_logger.addHandler(file_handler2)
+
+    console2 = logging.StreamHandler()
+    console2.setLevel(logging.INFO)
+    console2.setFormatter(formatter)
+    event_logger.addHandler(console2)
 
 
 # Main function
@@ -476,7 +521,7 @@ if __name__ == '__main__':
     # Strategy initialization
     setup_logging()
     if not on_init():
-        logging.error('Strategy initialization failed, exit script!')
+        trader_logger.error('Strategy initialization failed, exit script!')
         # print('Strategy initialization failed, exit script!')
         quote_context.close()
         trade_context.close()
