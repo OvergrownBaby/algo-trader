@@ -2,7 +2,7 @@
 
 # Script to start or restart a get_status.py script using nohup
 
-PID_FILE="./script.pid"
+PID_FILE="./pids/get_status.pid"
 LOG_FILE="./status/status.log"
 SCRIPT="get_status"
 PYTHON_BIN="python3"
