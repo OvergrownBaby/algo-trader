@@ -7,7 +7,7 @@ SCRIPT_DIR="traders"
 PYTHON_BIN="python3"
 
 # Ensure log and PID directories exist
-# mkdir -p "$LOG_DIR" "$PID_DIR"
+mkdir -p "$PID_DIR"
 
 # Function to check if an array contains a value
 contains_element () {
@@ -25,8 +25,8 @@ start_script() {
   echo "Starting $script_name..."
   module_path="${1%.py}"
   module_name="${module_path//\//.}"
-  nohup $PYTHON_BIN -u -m $module_name >> "$log_file" 2>&1 & # Use if log without logging module
-  # nohup $PYTHON_BIN -u -m $module_name &
+  # nohup $PYTHON_BIN -u -m $module_name >> "$log_file" 2>&1 & # Use if log without logging module
+  nohup $PYTHON_BIN -u -m $module_name > /dev/null 2>&1 &
   echo $! > "$pid_file"
   printf "%s started with PID %s.\n\n" "$script_name" "$(cat "$pid_file")"
 }
@@ -48,9 +48,10 @@ stop_script() {
 
 # Start all scripts, excluding specified exceptions
 start_scripts() {
-  echo "Starting scripts in $SCRIPT_DIR, excluding specified exceptions..."
+  echo "Starting scripts in $SCRIPT_DIR"
   for script in $SCRIPT_DIR/*.py; do
-    if contains_element "$(basename "$script")" "$@"; then
+    script_name=$(basename "$script" .py)
+    if contains_element "$(basename "$script_name")" "$@"; then
       echo "Skipping $(basename "$script")"
       continue
     fi
@@ -94,7 +95,7 @@ case "$1" in
     ;;
   -s) # Start a specific script
     if [ -n "$2" ]; then
-      specific_script="$SCRIPT_DIR/$2"
+      specific_script="$SCRIPT_DIR/$2.py"
       if [ -f "$specific_script" ]; then
         start_script "$specific_script"
       else

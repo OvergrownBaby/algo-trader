@@ -1,9 +1,15 @@
 # -*- coding: GBK -*-
 
 ### Todo
+### Write a class for trader so i don't need to modify each trader everytime i edit the framework 
 ### backtest: figure out where trading context gets its data then replace with our own database or write a function to fetch data from our database instead
 ### figure out how to import, change password access to config file inside project directory but rmb to .gitignore it
 ### package dependencies so i don't need a venv and can just pip install
+
+# todo: make a class for each strategy
+# todo: strategy_execution for multiple stocks: write a function to create a dict stocks{key: stock, value: [strats]}, then execute(strat) for strat in stock.values for stock in stocks
+# todo: stock selection
+# todo: make a an abstract strat class to reuse and require functions such as get_indicators
 
 import os
 from futu import *
@@ -21,8 +27,8 @@ DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PDIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 TRADING_PWD = os.getenv('FUTU_TRD_PW')  # Trading password, used to unlock trading for real trading environment
 
-TRADING_ENVIRONMENT = TrdEnv.REAL  # Trading environment: REAL / SIMULATE
-TRADING_MARKET = TrdMarket.CN  # Transaction market authority, used to filter accounts
+TRADING_ENVIRONMENT = TrdEnv.SIMULATE  # Trading environment: REAL / SIMULATE
+TRADING_MARKET = TrdMarket.HK  # Transaction market authority, used to filter accounts
 TRADING_PERIOD = KLType.K_1M  # Underlying trading time period
 
 TRADER_NAME = os.path.splitext(os.path.basename(os.path.abspath(__file__)))[0]  # Trader name
@@ -48,6 +54,7 @@ FAST_MOVING_AVERAGE = 12
 SLOW_MOVING_AVERAGE = 26
 SIGNAL_PARAM = 9
 MACD_THRESHOLD = 0.003
+PROPORTION = 1
 
 
 #Create context objects
@@ -162,12 +169,7 @@ def ma_strat(code):
             return 0
         return 1 if fast_value >= slow_value else -1
 
-
-# todo: make a class for each strategy
-# todo: strategy_execution for multiple stocks: write a function to create a dict stocks{key: stock, value: [strats]}, then execute(strat) for strat in stock.values for stock in stocks
-# todo: stock selection
-# if the program starts running after MACD > 0 and after first death cross, first death cross doesn't get updated, is this ok
-def macd_strat(code, fast_param, slow_param, signal_param):
+def macd_strat(code, proportion, fast_param, slow_param, signal_param):
     # print("[STRATEGY] Executing MACD strategy.")
     trader_logger.info("[STRATEGY] MACD")
     if not is_normal_trading_time(code):
@@ -187,13 +189,8 @@ def macd_strat(code, fast_param, slow_param, signal_param):
 
     seen_first_death_cross = 0
     
-    # todo: add budget condition for determining death cross, account for if program starts running when MACD above water
-        # solution: don't need to worry, because the if program starts when MACD < 0, issue doesn't exist; if program starts when MACD > 0, then it doesn't do anything until MACD < 0
-    # todo: make a an abstract strat class to reuse and require functions such as get_indicators
-    # todo: write a class for backtesting each strategy
     def execute_strat():
         nonlocal seen_first_death_cross
-        proportion = 0.1
         holding_position = get_holding_position(code)
         shares_per_lot = get_lot_size(code)
         total_cash = get_cash()
@@ -410,7 +407,7 @@ def on_init():
         trader_logger.error('Failed to unlock trade.')
         return False
     # print('************  Strategy Starts ***********')
-    trader_logger.info('************  Strategy Starts ***********')
+    trader_logger.info('************  Trader Starts ***********')
     # get_max_can_buy(TRADING_SECURITY, get_ask_and_bid(TRADING_SECURITY)[0])
     return True
 
@@ -437,8 +434,8 @@ def on_bar_open():
         else:
             # print('[ERROR] getting market snapshot failed.')
             trader_logger.error('getting market snapshot failed.')
-        macd_strat(security, FAST_MOVING_AVERAGE, SLOW_MOVING_AVERAGE, SIGNAL_PARAM)
-        trader_logger.info('\n')
+        macd_strat(security, PROPORTION, FAST_MOVING_AVERAGE, SLOW_MOVING_AVERAGE, SIGNAL_PARAM)
+        trader_logger.info('')
 
 
 # Run once when an order is filled

@@ -1,2 +1,232 @@
 2024-03-13 21:00:57 - paper_HK - INFO - Unlock Trade Success!
 2024-03-13 21:00:57 - paper_HK - INFO - ************  Strategy Starts ***********
+2024-03-14 10:41:57 - paper_HK - INFO - ************  Strategy Starts ***********
+2024-03-14 10:42:38 - paper_HK - INFO - ************  Strategy Starts ***********
+2024-03-14 10:43:00 - paper_HK - INFO - *****************************************
+2024-03-14 10:43:00 - paper_HK - INFO - [TICKER] HK.01099
+2024-03-14 10:43:00 - paper_HK - INFO - [UPDATE] HK.01099 price: 21.35
+2024-03-14 10:43:00 - paper_HK - INFO - [STRATEGY] MACD
+2024-03-14 10:43:00 - paper_HK - INFO - [POSITION] Holding 0 shares of HK.01099
+2024-03-14 10:43:01 - paper_HK - INFO - [ALLOCATE] 1 of 824220.154 allocated to HK.01099
+2024-03-14 10:43:01 - paper_HK - INFO - 
+
+2024-03-14 10:43:01 - paper_HK - INFO - [TICKER] HK.00700
+2024-03-14 10:43:01 - paper_HK - INFO - [UPDATE] HK.00700 price: 289.0
+2024-03-14 10:43:01 - paper_HK - INFO - [STRATEGY] MACD
+2024-03-14 10:43:01 - paper_HK - INFO - [POSITION] Holding 500.0 shares of HK.00700
+2024-03-14 10:43:01 - paper_HK - INFO - [ALLOCATE] 1 of 824220.154 allocated to HK.00700
+2024-03-14 10:43:02 - paper_HK - INFO - 
+
+2024-03-14 10:44:00 - paper_HK - INFO - *****************************************
+2024-03-14 10:44:00 - paper_HK - INFO - [TICKER] HK.01099
+2024-03-14 10:44:00 - paper_HK - INFO - [UPDATE] HK.01099 price: 21.35
+2024-03-14 10:44:00 - paper_HK - INFO - [STRATEGY] MACD
+2024-03-14 10:44:00 - paper_HK - INFO - [POSITION] Holding 0 shares of HK.01099
+2024-03-14 10:44:00 - paper_HK - INFO - [ALLOCATE] 1 of 824220.154 allocated to HK.01099
+2024-03-14 10:44:01 - paper_HK - INFO - 
+
+2024-03-14 10:44:01 - paper_HK - INFO - [TICKER] HK.00700
+2024-03-14 10:44:01 - paper_HK - INFO - [UPDATE] HK.00700 price: 289.0
+2024-03-14 10:44:01 - paper_HK - INFO - [STRATEGY] MACD
+2024-03-14 10:44:01 - paper_HK - INFO - [POSITION] Holding 500.0 shares of HK.00700
+2024-03-14 10:44:01 - paper_HK - INFO - [ALLOCATE] 1 of 824220.154 allocated to HK.00700
+2024-03-14 10:44:01 - paper_HK - INFO - 
+
+2024-03-14 10:44:09 - paper_HK - INFO - ************  Strategy Starts ***********
+2024-03-14 10:45:00 - paper_HK - INFO - *****************************************
+2024-03-14 10:45:00 - paper_HK - INFO - [TICKER] HK.01099
+2024-03-14 10:45:01 - paper_HK - INFO - [UPDATE] HK.01099 price: 21.35
+2024-03-14 10:45:01 - paper_HK - INFO - [STRATEGY] MACD
+2024-03-14 10:45:01 - paper_HK - INFO - [POSITION] Holding 0 shares of HK.01099
+2024-03-14 10:45:01 - paper_HK - INFO - [ALLOCATE] 1 of 824220.154 allocated to HK.01099
+2024-03-14 10:45:01 - paper_HK - INFO - [TICKER] HK.00700
+2024-03-14 10:45:02 - paper_HK - INFO - [UPDATE] HK.00700 price: 289.0
+2024-03-14 10:45:02 - paper_HK - INFO - [STRATEGY] MACD
+2024-03-14 10:45:02 - paper_HK - INFO - [POSITION] Holding 500.0 shares of HK.00700
+2024-03-14 10:45:02 - paper_HK - INFO - [ALLOCATE] 1 of 824220.154 allocated to HK.00700
+2024-03-14 10:45:59 - paper_HK - INFO - *****************************************
+2024-03-14 10:45:59 - paper_HK - INFO - [TICKER] HK.01099
+2024-03-14 10:46:00 - paper_HK - INFO - [UPDATE] HK.01099 price: 21.35
+2024-03-14 10:46:00 - paper_HK - INFO - [STRATEGY] MACD
+2024-03-14 10:46:00 - paper_HK - INFO - [POSITION] Holding 0 shares of HK.01099
+2024-03-14 10:46:00 - paper_HK - INFO - [ALLOCATE] 1 of 824220.154 allocated to HK.01099
+2024-03-14 10:46:00 - paper_HK - INFO - [TICKER] HK.00700
+2024-03-14 10:46:00 - paper_HK - INFO - [UPDATE] HK.00700 price: 289.4
+2024-03-14 10:46:00 - paper_HK - INFO - [STRATEGY] MACD
+2024-03-14 10:46:00 - paper_HK - INFO - [POSITION] Holding 500.0 shares of HK.00700
+2024-03-14 10:46:00 - paper_HK - INFO - [ALLOCATE] 1 of 824220.154 allocated to HK.00700
+2024-03-14 10:47:00 - paper_HK - INFO - *****************************************
+2024-03-14 10:47:00 - paper_HK - INFO - [TICKER] HK.01099
+2024-03-14 10:47:00 - paper_HK - INFO - [UPDATE] HK.01099 price: 21.45
+2024-03-14 10:47:00 - paper_HK - INFO - [STRATEGY] MACD
+2024-03-14 10:47:00 - paper_HK - INFO - [POSITION] Holding 0 shares of HK.01099
+2024-03-14 10:47:00 - paper_HK - INFO - [ALLOCATE] 1 of 824220.154 allocated to HK.01099
+2024-03-14 10:47:01 - paper_HK - INFO - [TICKER] HK.00700
+2024-03-14 10:47:01 - paper_HK - INFO - [UPDATE] HK.00700 price: 289.2
+2024-03-14 10:47:01 - paper_HK - INFO - [STRATEGY] MACD
+2024-03-14 10:47:01 - paper_HK - INFO - [POSITION] Holding 500.0 shares of HK.00700
+2024-03-14 10:47:01 - paper_HK - INFO - [ALLOCATE] 1 of 824220.154 allocated to HK.00700
+2024-03-14 10:47:10 - paper_HK - INFO - ************  Strategy Starts ***********
+2024-03-14 10:47:42 - paper_HK - INFO - 
+
+************  Strategy Starts ***********
+2024-03-14 10:47:59 - paper_HK - INFO - *****************************************
+2024-03-14 10:47:59 - paper_HK - INFO - 
+ [TICKER] HK.01099
+2024-03-14 10:48:00 - paper_HK - INFO - [UPDATE] HK.01099 price: 21.45
+2024-03-14 10:48:00 - paper_HK - INFO - [STRATEGY] MACD
+2024-03-14 10:48:00 - paper_HK - INFO - [POSITION] Holding 0 shares of HK.01099
+2024-03-14 10:48:00 - paper_HK - INFO - [ALLOCATE] 1 of 824220.154 allocated to HK.01099
+2024-03-14 10:48:00 - paper_HK - INFO - 
+ [TICKER] HK.00700
+2024-03-14 10:48:00 - paper_HK - INFO - [UPDATE] HK.00700 price: 289.2
+2024-03-14 10:48:00 - paper_HK - INFO - [STRATEGY] MACD
+2024-03-14 10:48:00 - paper_HK - INFO - [POSITION] Holding 500.0 shares of HK.00700
+2024-03-14 10:48:00 - paper_HK - INFO - [ALLOCATE] 1 of 824220.154 allocated to HK.00700
+2024-03-14 10:48:00 - paper_HK - INFO - [SELL] MACD < 0 and death cross. Selling second half of allocated budget
+2024-03-14 10:48:00 - paper_HK - ERROR - Close position failed: 持仓不足
+2024-03-14 10:48:14 - paper_HK - INFO - ************  Trader Starts ***********
+2024-03-14 10:49:00 - paper_HK - INFO - *****************************************
+2024-03-14 10:49:00 - paper_HK - INFO - 
+ [TICKER] HK.01099
+2024-03-14 10:49:00 - paper_HK - INFO - [UPDATE] HK.01099 price: 21.45
+2024-03-14 10:49:00 - paper_HK - INFO - [STRATEGY] MACD
+2024-03-14 10:49:01 - paper_HK - INFO - [POSITION] Holding 0 shares of HK.01099
+2024-03-14 10:49:01 - paper_HK - INFO - [ALLOCATE] 1 of 824220.154 allocated to HK.01099
+2024-03-14 10:49:01 - paper_HK - INFO - 
+ [TICKER] HK.00700
+2024-03-14 10:49:01 - paper_HK - INFO - [UPDATE] HK.00700 price: 289.4
+2024-03-14 10:49:01 - paper_HK - INFO - [STRATEGY] MACD
+2024-03-14 10:49:01 - paper_HK - INFO - [POSITION] Holding 500.0 shares of HK.00700
+2024-03-14 10:49:02 - paper_HK - INFO - [ALLOCATE] 1 of 824220.154 allocated to HK.00700
+2024-03-14 10:50:00 - paper_HK - INFO - *****************************************
+2024-03-14 10:50:00 - paper_HK - INFO - 
+ [TICKER] HK.01099
+2024-03-14 10:50:00 - paper_HK - INFO - [UPDATE] HK.01099 price: 21.45
+2024-03-14 10:50:00 - paper_HK - INFO - [STRATEGY] MACD
+2024-03-14 10:50:00 - paper_HK - INFO - [POSITION] Holding 0 shares of HK.01099
+2024-03-14 10:50:00 - paper_HK - INFO - [ALLOCATE] 1 of 824220.154 allocated to HK.01099
+2024-03-14 10:50:00 - paper_HK - INFO - 
+ [TICKER] HK.00700
+2024-03-14 10:50:01 - paper_HK - INFO - [UPDATE] HK.00700 price: 289.4
+2024-03-14 10:50:01 - paper_HK - INFO - [STRATEGY] MACD
+2024-03-14 10:50:01 - paper_HK - INFO - [POSITION] Holding 500.0 shares of HK.00700
+2024-03-14 10:50:01 - paper_HK - INFO - [ALLOCATE] 1 of 824220.154 allocated to HK.00700
+2024-03-14 10:51:00 - paper_HK - INFO - *****************************************
+2024-03-14 10:51:00 - paper_HK - INFO - 
+ [TICKER] HK.01099
+2024-03-14 10:51:00 - paper_HK - INFO - [UPDATE] HK.01099 price: 21.45
+2024-03-14 10:51:00 - paper_HK - INFO - [STRATEGY] MACD
+2024-03-14 10:51:00 - paper_HK - INFO - [POSITION] Holding 0 shares of HK.01099
+2024-03-14 10:51:01 - paper_HK - INFO - [ALLOCATE] 1 of 824220.154 allocated to HK.01099
+2024-03-14 10:51:01 - paper_HK - INFO - 
+ [TICKER] HK.00700
+2024-03-14 10:51:01 - paper_HK - INFO - [UPDATE] HK.00700 price: 289.0
+2024-03-14 10:51:01 - paper_HK - INFO - [STRATEGY] MACD
+2024-03-14 10:51:01 - paper_HK - INFO - [POSITION] Holding 500.0 shares of HK.00700
+2024-03-14 10:51:01 - paper_HK - INFO - [ALLOCATE] 1 of 824220.154 allocated to HK.00700
+2024-03-14 10:52:00 - paper_HK - INFO - *****************************************
+2024-03-14 10:52:00 - paper_HK - INFO - 
+ [TICKER] HK.01099
+2024-03-14 10:52:00 - paper_HK - INFO - [UPDATE] HK.01099 price: 21.4
+2024-03-14 10:52:00 - paper_HK - INFO - [STRATEGY] MACD
+2024-03-14 10:52:00 - paper_HK - INFO - [POSITION] Holding 0 shares of HK.01099
+2024-03-14 10:52:01 - paper_HK - INFO - [ALLOCATE] 1 of 824220.154 allocated to HK.01099
+2024-03-14 10:52:01 - paper_HK - INFO - 
+ [TICKER] HK.00700
+2024-03-14 10:52:01 - paper_HK - INFO - [UPDATE] HK.00700 price: 289.2
+2024-03-14 10:52:01 - paper_HK - INFO - [STRATEGY] MACD
+2024-03-14 10:52:01 - paper_HK - INFO - [POSITION] Holding 500.0 shares of HK.00700
+2024-03-14 10:52:01 - paper_HK - INFO - [ALLOCATE] 1 of 824220.154 allocated to HK.00700
+2024-03-14 10:53:00 - paper_HK - INFO - *****************************************
+2024-03-14 10:53:00 - paper_HK - INFO - 
+ [TICKER] HK.01099
+2024-03-14 10:53:00 - paper_HK - INFO - [UPDATE] HK.01099 price: 21.4
+2024-03-14 10:53:00 - paper_HK - INFO - [STRATEGY] MACD
+2024-03-14 10:53:00 - paper_HK - INFO - [POSITION] Holding 0 shares of HK.01099
+2024-03-14 10:53:00 - paper_HK - INFO - [ALLOCATE] 1 of 824220.154 allocated to HK.01099
+2024-03-14 10:53:01 - paper_HK - INFO - 
+ [TICKER] HK.00700
+2024-03-14 10:53:01 - paper_HK - INFO - [UPDATE] HK.00700 price: 288.6
+2024-03-14 10:53:01 - paper_HK - INFO - [STRATEGY] MACD
+2024-03-14 10:53:01 - paper_HK - INFO - [POSITION] Holding 500.0 shares of HK.00700
+2024-03-14 10:53:01 - paper_HK - INFO - [ALLOCATE] 1 of 824220.154 allocated to HK.00700
+2024-03-14 10:54:00 - paper_HK - INFO - *****************************************
+2024-03-14 10:54:00 - paper_HK - INFO - 
+ [TICKER] HK.01099
+2024-03-14 10:54:00 - paper_HK - INFO - [UPDATE] HK.01099 price: 21.45
+2024-03-14 10:54:00 - paper_HK - INFO - [STRATEGY] MACD
+2024-03-14 10:54:00 - paper_HK - INFO - [POSITION] Holding 0 shares of HK.01099
+2024-03-14 10:54:01 - paper_HK - INFO - [ALLOCATE] 1 of 824220.154 allocated to HK.01099
+2024-03-14 10:54:01 - paper_HK - INFO - 
+ [TICKER] HK.00700
+2024-03-14 10:54:01 - paper_HK - INFO - [UPDATE] HK.00700 price: 289.2
+2024-03-14 10:54:01 - paper_HK - INFO - [STRATEGY] MACD
+2024-03-14 10:54:01 - paper_HK - INFO - [POSITION] Holding 500.0 shares of HK.00700
+2024-03-14 10:54:02 - paper_HK - INFO - [ALLOCATE] 1 of 824220.154 allocated to HK.00700
+2024-03-14 10:55:00 - paper_HK - INFO - *****************************************
+2024-03-14 10:55:00 - paper_HK - INFO - 
+ [TICKER] HK.01099
+2024-03-14 10:55:00 - paper_HK - INFO - [UPDATE] HK.01099 price: 21.45
+2024-03-14 10:55:00 - paper_HK - INFO - [STRATEGY] MACD
+2024-03-14 10:55:01 - paper_HK - INFO - [POSITION] Holding 0 shares of HK.01099
+2024-03-14 10:55:01 - paper_HK - INFO - [ALLOCATE] 1 of 824220.154 allocated to HK.01099
+2024-03-14 10:55:01 - paper_HK - INFO - 
+ [TICKER] HK.00700
+2024-03-14 10:55:01 - paper_HK - INFO - [UPDATE] HK.00700 price: 288.8
+2024-03-14 10:55:01 - paper_HK - INFO - [STRATEGY] MACD
+2024-03-14 10:55:01 - paper_HK - INFO - [POSITION] Holding 500.0 shares of HK.00700
+2024-03-14 10:55:01 - paper_HK - INFO - [ALLOCATE] 1 of 824220.154 allocated to HK.00700
+2024-03-14 10:55:19 - paper_HK - INFO - ************  Trader Starts ***********
+2024-03-14 10:56:00 - paper_HK - INFO - *****************************************
+2024-03-14 10:56:00 - paper_HK - INFO - [TICKER] HK.01099
+2024-03-14 10:56:00 - paper_HK - INFO - [UPDATE] HK.01099 price: 21.45
+2024-03-14 10:56:00 - paper_HK - INFO - [STRATEGY] MACD
+2024-03-14 10:56:00 - paper_HK - INFO - [POSITION] Holding 0 shares of HK.01099
+2024-03-14 10:56:01 - paper_HK - INFO - [ALLOCATE] 1 of 824220.154 allocated to HK.01099
+2024-03-14 10:56:01 - paper_HK - INFO - 
+2024-03-14 10:56:01 - paper_HK - INFO - [TICKER] HK.00700
+2024-03-14 10:56:01 - paper_HK - INFO - [UPDATE] HK.00700 price: 288.8
+2024-03-14 10:56:01 - paper_HK - INFO - [STRATEGY] MACD
+2024-03-14 10:56:01 - paper_HK - INFO - [POSITION] Holding 500.0 shares of HK.00700
+2024-03-14 10:56:01 - paper_HK - INFO - [ALLOCATE] 1 of 824220.154 allocated to HK.00700
+2024-03-14 10:56:02 - paper_HK - INFO - 
+2024-03-14 10:57:00 - paper_HK - INFO - *****************************************
+2024-03-14 10:57:00 - paper_HK - INFO - [TICKER] HK.01099
+2024-03-14 10:57:00 - paper_HK - INFO - [UPDATE] HK.01099 price: 21.45
+2024-03-14 10:57:00 - paper_HK - INFO - [STRATEGY] MACD
+2024-03-14 10:57:00 - paper_HK - INFO - [POSITION] Holding 0 shares of HK.01099
+2024-03-14 10:57:01 - paper_HK - INFO - [ALLOCATE] 1 of 824220.154 allocated to HK.01099
+2024-03-14 10:57:01 - paper_HK - INFO - 
+2024-03-14 10:57:01 - paper_HK - INFO - [TICKER] HK.00700
+2024-03-14 10:57:01 - paper_HK - INFO - [UPDATE] HK.00700 price: 288.8
+2024-03-14 10:57:01 - paper_HK - INFO - [STRATEGY] MACD
+2024-03-14 10:57:02 - paper_HK - INFO - [POSITION] Holding 500.0 shares of HK.00700
+2024-03-14 10:57:02 - paper_HK - INFO - [ALLOCATE] 1 of 824220.154 allocated to HK.00700
+2024-03-14 10:57:02 - paper_HK - INFO - 
+2024-03-14 10:57:59 - paper_HK - INFO - *****************************************
+2024-03-14 10:57:59 - paper_HK - INFO - [TICKER] HK.01099
+2024-03-14 10:58:00 - paper_HK - INFO - [UPDATE] HK.01099 price: 21.4
+2024-03-14 10:58:00 - paper_HK - INFO - [STRATEGY] MACD
+2024-03-14 10:58:00 - paper_HK - INFO - [POSITION] Holding 0 shares of HK.01099
+2024-03-14 10:58:00 - paper_HK - INFO - [ALLOCATE] 1 of 824220.154 allocated to HK.01099
+2024-03-14 10:58:00 - paper_HK - INFO - 
+2024-03-14 10:58:00 - paper_HK - INFO - [TICKER] HK.00700
+2024-03-14 10:58:00 - paper_HK - INFO - [UPDATE] HK.00700 price: 288.6
+2024-03-14 10:58:00 - paper_HK - INFO - [STRATEGY] MACD
+2024-03-14 10:58:00 - paper_HK - INFO - [POSITION] Holding 500.0 shares of HK.00700
+2024-03-14 10:58:00 - paper_HK - INFO - [ALLOCATE] 1 of 824220.154 allocated to HK.00700
+2024-03-14 10:58:00 - paper_HK - INFO - 
+2024-03-14 10:59:00 - paper_HK - INFO - *****************************************
+2024-03-14 10:59:00 - paper_HK - INFO - [TICKER] HK.01099
+2024-03-14 10:59:00 - paper_HK - INFO - [UPDATE] HK.01099 price: 21.4
+2024-03-14 10:59:00 - paper_HK - INFO - [STRATEGY] MACD
+2024-03-14 10:59:00 - paper_HK - INFO - [POSITION] Holding 0 shares of HK.01099
+2024-03-14 10:59:01 - paper_HK - INFO - [ALLOCATE] 1 of 824220.154 allocated to HK.01099
+2024-03-14 10:59:01 - paper_HK - INFO - 
+2024-03-14 10:59:01 - paper_HK - INFO - [TICKER] HK.00700
+2024-03-14 10:59:01 - paper_HK - INFO - [UPDATE] HK.00700 price: 288.8
+2024-03-14 10:59:01 - paper_HK - INFO - [STRATEGY] MACD
+2024-03-14 10:59:01 - paper_HK - INFO - [POSITION] Holding 500.0 shares of HK.00700
+2024-03-14 10:59:01 - paper_HK - INFO - [ALLOCATE] 1 of 824220.154 allocated to HK.00700
+2024-03-14 10:59:02 - paper_HK - INFO - 

@@ -49,6 +49,7 @@ FAST_MOVING_AVERAGE = 12
 SLOW_MOVING_AVERAGE = 26
 SIGNAL_PARAM = 9
 MACD_THRESHOLD = 0.003
+PROPORTION = 0.1
 
 
 #Create context objects
@@ -168,7 +169,7 @@ def ma_strat(code):
 # todo: strategy_execution for multiple stocks: write a function to create a dict stocks{key: stock, value: [strats]}, then execute(strat) for strat in stock.values for stock in stocks
 # todo: stock selection
 # if the program starts running after MACD > 0 and after first death cross, first death cross doesn't get updated, is this ok
-def macd_strat(code, fast_param, slow_param, signal_param):
+def macd_strat(code, proportion, fast_param, slow_param, signal_param):
     # print("[STRATEGY] Executing MACD strategy.")
     trader_logger.info("[STRATEGY] MACD")
     if not is_normal_trading_time(code):
@@ -194,7 +195,6 @@ def macd_strat(code, fast_param, slow_param, signal_param):
     # todo: write a class for backtesting each strategy
     def execute_strat():
         nonlocal seen_first_death_cross
-        proportion = 0.1
         holding_position = get_holding_position(code)
         shares_per_lot = get_lot_size(code)
         total_cash = get_cash()
@@ -411,7 +411,7 @@ def on_init():
         trader_logger.error('Failed to unlock trade.')
         return False
     # print('************  Strategy Starts ***********')
-    trader_logger.info('************  Strategy Starts ***********')
+    trader_logger.info('************  Trader Starts ***********')
     # get_max_can_buy(TRADING_SECURITY, get_ask_and_bid(TRADING_SECURITY)[0])
     return True
 
@@ -438,7 +438,7 @@ def on_bar_open():
         else:
             # print('[ERROR] getting market snapshot failed.')
             trader_logger.error('getting market snapshot failed.')
-        macd_strat(security, FAST_MOVING_AVERAGE, SLOW_MOVING_AVERAGE, SIGNAL_PARAM)
+        macd_strat(security, PROPORTION, FAST_MOVING_AVERAGE, SLOW_MOVING_AVERAGE, SIGNAL_PARAM)
         trader_logger.info('\n')
 
 
