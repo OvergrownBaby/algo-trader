@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-class Strategy(ABC):
+class MACD(ABC):
     @abstractmethod
     def get_data(self):
         pass

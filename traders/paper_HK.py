@@ -54,7 +54,7 @@ FAST_MOVING_AVERAGE = 12
 SLOW_MOVING_AVERAGE = 26
 SIGNAL_PARAM = 9
 MACD_THRESHOLD = 0.003
-PROPORTION = 1
+PROPORTION = 1/len(TRADING_SECURITIES)
 
 
 #Create context objects
@@ -170,7 +170,6 @@ def ma_strat(code):
         return 1 if fast_value >= slow_value else -1
 
 def macd_strat(code, proportion, fast_param, slow_param, signal_param):
-    # print("[STRATEGY] Executing MACD strategy.")
     trader_logger.info("[STRATEGY] MACD")
     if not is_normal_trading_time(code):
         return
@@ -199,50 +198,34 @@ def macd_strat(code, proportion, fast_param, slow_param, signal_param):
         trader_logger.info(f"[ALLOCATE] {proportion} of {total_cash} allocated to {code}")
         lots_can_buy = total_budget // (get_lot_size(code) * get_ask_and_bid(code)[0])
     
-        macd_today = data.at[data.index[-1], 'diff']
+        macd_tdy = data.at[data.index[-1], 'diff']
         macd_ytd = data.at[data.index[-2], 'diff']
-        macd_signal_today = data.at[data.index[-1], 'dea']
+        macd_signal_tdy = data.at[data.index[-1], 'dea']
         macd_signal_ytd = data.at[data.index[-2], 'dea']
 
-        if macd_today > 0 and macd_ytd < 0: # 上水 and position == 0
-            event_logger.info("[EVENT] 上水")
-        if macd_today > MACD_THRESHOLD and macd_ytd < -MACD_THRESHOLD: # 上水 and position == 0
-            event_logger.info("[EVENT] threshold 上水")
-
-        if macd_today < -MACD_THRESHOLD:                                       # position > 0 and 水下
-            # print("[STRATEGY] MACD < 0, selling all of allocated budget.")
-            event_logger.info("[EVENT] 落水")
-        else:                                                    # position > 0 and above water
-            if (macd_ytd < macd_signal_ytd) and (macd_today > macd_signal_today): # MACD 金叉
-                event_logger.info("[EVENT] 水上金叉")
-            if (macd_ytd > macd_signal_ytd) and (macd_today < macd_signal_today): # MACD 死叉
-                if seen_first_death_cross == 0:
-                    seen_first_death_cross = 1
-                    event_logger.info("[EVENT] 第一次水上死叉")
-                else:
-                    event_logger.info("[EVENT] 水上死叉")
-
         if holding_position == 0:
-            if macd_today > MACD_THRESHOLD and macd_ytd < -MACD_THRESHOLD: # 上水 and position == 0
-                # print("[STRATEGY] MACD > 0, buying half of allocated budget.")
+            if macd_tdy > MACD_THRESHOLD and macd_ytd < MACD_THRESHOLD: # 上水 and position == 0
                 trader_logger.info("[BUY] MACD > 0, buying half of allocated budget.")
+                event_logger.info(f"[BUY] {code} MACD 上水")
                 open_position(code, lots_can_buy // 2 * shares_per_lot) # buy first half of budget
         else:
-            if macd_today < -MACD_THRESHOLD:                                       # position > 0 and 水下
-                # print("[STRATEGY] MACD < 0, selling all of allocated budget.")
+            if macd_tdy < -MACD_THRESHOLD:                                       # position > 0 and 水下
                 trader_logger.info("[SELL] MACD < 0, selling all of allocated budget.")
-                close_position(code, holding_position)               # sell everything
-            else:                                                    # position > 0 and above water
-                if (macd_ytd < macd_signal_ytd) and (macd_today > macd_signal_today): # MACD 金叉
-                    # print("[STRATEGY] MACD > 0 and golden cross. Buying second half of allocated budget")
+                if macd_ytd > -MACD_THRESHOLD:
+                    event_logger.info(f"{code} MACD 落水")
+                close_position(code, holding_position)
+            else:                                                                # position > 0 and above water
+                if (macd_ytd < macd_signal_ytd) and (macd_tdy > macd_signal_tdy): # MACD 金叉, buy half
                     trader_logger.info("[BUY] MACD > 0 and golden cross. Buying second half of allocated budget")
+                    event_logger.info(f"[BUY] {code} MACD > 0 and 金叉")
                     open_position(code, lots_can_buy // 2 * shares_per_lot)
-                if (macd_ytd > macd_signal_ytd) and (macd_today < macd_signal_today): # MACD 死叉
-                    if seen_first_death_cross == 0:
+                if (macd_ytd > macd_signal_ytd) and (macd_tdy < macd_signal_tdy): # MACD 死叉
+                    if seen_first_death_cross == 0:                               # first time seeing death cross, do nothing
                         seen_first_death_cross = 1
-                    else:
-                        # print("[STRATEGY] MACD < 0 and death cross. Selling second half of allocated budget")
-                        trader_logger.info("[SELL] MACD < 0 and death cross. Selling second half of allocated budget")
+                        event_logger.info(f"[SIGHTING] {code} 水上第一个死叉")
+                    else:                                                         # second time seeing death cross, sell half
+                        trader_logger.info("[SELL] Death cross after first sighting. Selling second half of allocated budget")
+                        event_logger.info(f"[SELL] {code} 水上死叉（非第一个）")
                         close_position(code, lots_can_buy // 2 * shares_per_lot)
 
     def get_macd():
