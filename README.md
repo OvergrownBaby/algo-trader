@@ -44,8 +44,6 @@ or `python3 -m traders.paper_MA`
 
 - Exclusions can be specified as additional arguments.
 
-- **To Start a Specific Script:**
-
 ### getting daily account status
 
 To export the account status (cash, etc.) of each day to an individual .csv file, use the `run_get_status.sh` script with these options:
