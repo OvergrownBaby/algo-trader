@@ -1,22 +1,20 @@
 # -*- coding: GBK -*-
 
 ### Todo
-### Write a class for trader so i don't need to modify each trader everytime i edit the framework 
-### backtest: figure out where trading context gets its data then replace with our own database or write a function to fetch data from our database instead
+# todo: make a abstractbase class for each strategy
+### backtest with joint quant
 ### figure out how to import, change password access to config file inside project directory but rmb to .gitignore it
 ### package dependencies so i don't need a venv and can just pip install
-
-# todo: make a class for each strategy
-# todo: strategy_execution for multiple stocks: write a function to create a dict stocks{key: stock, value: [strats]}, then execute(strat) for strat in stock.values for stock in stocks
 # todo: stock selection
-# todo: make a an abstract strat class to reuse and require functions such as get_indicators
+
 
 import os
 from futu import *
 import logging
 import pandas as pd
 import matplotlib.pyplot as plt
-from modules import strategies_base
+from modules.indicators import *
+import modules.tools as tools
 
 
 ############################ Global Variables ############################
@@ -118,6 +116,117 @@ def get_holding_position(code):
         trader_logger.info(f'[POSITION] Holding {holding_position} shares of {code}')
     return holding_position
 
+# Get ask1 and bid1 from order book
+def get_ask_and_bid(code):
+    ret, data = quote_context.get_order_book(code, num=1)
+    if ret != RET_OK:
+        # print('Get order book failed: ', data)
+        trader_logger.error(f'Get order book failed: {data}')
+        return None, None
+    return data['Ask'][0][0], data['Bid'][0][0]
+
+
+# Open long positions
+def open_position(code, open_quantity):
+    # Get order book data
+    ask, bid = get_ask_and_bid(code)
+
+    # Check whether buying power is enough
+    if is_valid_quantity(code, open_quantity, ask):
+        # Place order
+        ret, data = trade_context.place_order(price=ask, qty=open_quantity, code=code, trd_side=TrdSide.BUY,
+                                              order_type=OrderType.NORMAL, trd_env=TRADING_ENVIRONMENT
+                                            #   , remark='moving_average_strategy'
+                                            )
+        if ret != RET_OK:
+            # print('Open position failed: ', data)
+            trader_logger.error(f'Open position failed: {data}')
+        else:
+            data.to_csv(TRANS_LOG_PATH, mode='a', sep=',', index=False)
+    else:
+        # print('Maximum quantity that can be bought less than transaction quantity.')
+        trader_logger.error('Maximum quantity that can be bought is less than transaction quantity.')
+
+
+# Close position
+def close_position(code, quantity):
+    # Get order book data
+    ask, bid = get_ask_and_bid(code)
+
+    # Check quantity
+    if quantity == 0:
+        # print('Invalid order quantity.')
+        trader_logger.error('Invalid order quantity.')
+        return False
+
+    # Close position
+    ret, data = trade_context.place_order(price=bid, qty=quantity, code=code, trd_side=TrdSide.SELL,
+                   order_type=OrderType.NORMAL, trd_env=TRADING_ENVIRONMENT, remark='moving_average_strategy')
+    
+    if ret == RET_OK:
+        data.to_csv(TRANS_LOG_PATH, mode='a', sep=',', index=False)
+    elif ret != RET_OK:
+        # print('[ERROR]', data)
+        trader_logger.error(f'Close position failed: {data}')
+        return False
+    return True
+
+
+# Get size of lot
+def get_lot_size(code):
+    price_quantity = 0
+    # Use minimum lot size
+    ret, data = quote_context.get_market_snapshot([code])
+    if ret != RET_OK:
+        # print('Get market snapshot failed: ', data)
+        trader_logger.error(f'Get market snapshot failed: {data}')
+        return price_quantity
+    price_quantity = data['lot_size'][0]
+    return price_quantity
+
+
+# Check the buying power is enough for the quantity
+def is_valid_quantity(code, quantity, price):
+    ret, data = trade_context.acctradinginfo_query(order_type=OrderType.NORMAL, code=code, price=price,
+                                                   trd_env=TRADING_ENVIRONMENT)
+    if ret != RET_OK:
+        # print('Get max long/short quantity failed: ', data)
+        trader_logger.error(f'Get max long/short quantity failed: {data}')
+        return False
+    max_can_buy = data['max_cash_buy'][0]
+    max_can_sell = data['max_sell_short'][0]
+    if quantity > 0:
+        return quantity < max_can_buy
+    elif quantity < 0:
+        return abs(quantity) < max_can_sell
+    else:
+        return False
+    
+def get_max_can_buy(code, price):
+    ret, data = trade_context.acctradinginfo_query(order_type=OrderType.NORMAL, code=code, price=price,
+                                                   trd_env=TRADING_ENVIRONMENT)
+    max_can_buy = data['max_cash_buy'][0]
+    return max_can_buy
+
+def get_cash():
+    ret, data = trade_context.accinfo_query(trd_env=TRADING_ENVIRONMENT)
+    if ret == RET_OK:
+        return data.cash[0]
+        # print([col for col in data.columns if data[col][0] != 'N/A' and data[col][0] != 0])
+    else:
+        # print('accinfo_query error: ', data)
+        trader_logger.error(f'accinfo_query error: {data}')
+
+# Show order status
+def show_order_status(data):
+    order_status = data['order_status'][0]
+    order_info = dict()
+    order_info['Code'] = data['code'][0]
+    order_info['Price'] = data['price'][0]
+    order_info['TradeSide'] = data['trd_side'][0]
+    order_info['Quantity'] = data['qty'][0]
+    # print('[OrderStatus]', order_status, order_info)
+    trader_logger.info(f'[OrderStatus] {order_status} {order_info}')
 
 def ma_strat(code):
 
@@ -266,119 +375,15 @@ def macd_strat(code, proportion, fast_param, slow_param, signal_param):
     get_macd()
     # plot_macd()
     execute_strat()
-            
 
-# Get ask1 and bid1 from order book
-def get_ask_and_bid(code):
-    ret, data = quote_context.get_order_book(code, num=1)
-    if ret != RET_OK:
-        # print('Get order book failed: ', data)
-        trader_logger.error(f'Get order book failed: {data}')
-        return None, None
-    return data['Ask'][0][0], data['Bid'][0][0]
+class MACDStrat(MACD): # under construction
+    def __init__(self, quote_context, symbol, trading_period, logger, short_window=12, long_window=26, signal_window=9, threshold=0.0):
+        super().__init__(quote_context, symbol, trading_period, logger, short_window, long_window, signal_window, threshold)
+        # self.logger = logging.getLogger(TRADER_NAME)
 
-
-# Open long positions
-def open_position(code, open_quantity):
-    # Get order book data
-    ask, bid = get_ask_and_bid(code)
-
-    # Check whether buying power is enough
-    if is_valid_quantity(code, open_quantity, ask):
-        # Place order
-        ret, data = trade_context.place_order(price=ask, qty=open_quantity, code=code, trd_side=TrdSide.BUY,
-                                              order_type=OrderType.NORMAL, trd_env=TRADING_ENVIRONMENT
-                                            #   , remark='moving_average_strategy'
-                                            )
-        if ret != RET_OK:
-            # print('Open position failed: ', data)
-            trader_logger.error(f'Open position failed: {data}')
-        else:
-            data.to_csv(TRANS_LOG_PATH, mode='a', sep=',', index=False)
-    else:
-        # print('Maximum quantity that can be bought less than transaction quantity.')
-        trader_logger.error('Maximum quantity that can be bought is less than transaction quantity.')
-
-
-# Close position
-def close_position(code, quantity):
-    # Get order book data
-    ask, bid = get_ask_and_bid(code)
-
-    # Check quantity
-    if quantity == 0:
-        # print('Invalid order quantity.')
-        trader_logger.error('Invalid order quantity.')
-        return False
-
-    # Close position
-    ret, data = trade_context.place_order(price=bid, qty=quantity, code=code, trd_side=TrdSide.SELL,
-                   order_type=OrderType.NORMAL, trd_env=TRADING_ENVIRONMENT, remark='moving_average_strategy')
-    
-    if ret == RET_OK:
-        data.to_csv(TRANS_LOG_PATH, mode='a', sep=',', index=False)
-    elif ret != RET_OK:
-        # print('[ERROR]', data)
-        trader_logger.error(f'Close position failed: {data}')
-        return False
-    return True
-
-
-# Get size of lot
-def get_lot_size(code):
-    price_quantity = 0
-    # Use minimum lot size
-    ret, data = quote_context.get_market_snapshot([code])
-    if ret != RET_OK:
-        # print('Get market snapshot failed: ', data)
-        trader_logger.error(f'Get market snapshot failed: {data}')
-        return price_quantity
-    price_quantity = data['lot_size'][0]
-    return price_quantity
-
-
-# Check the buying power is enough for the quantity
-def is_valid_quantity(code, quantity, price):
-    ret, data = trade_context.acctradinginfo_query(order_type=OrderType.NORMAL, code=code, price=price,
-                                                   trd_env=TRADING_ENVIRONMENT)
-    if ret != RET_OK:
-        # print('Get max long/short quantity failed: ', data)
-        trader_logger.error(f'Get max long/short quantity failed: {data}')
-        return False
-    max_can_buy = data['max_cash_buy'][0]
-    max_can_sell = data['max_sell_short'][0]
-    if quantity > 0:
-        return quantity < max_can_buy
-    elif quantity < 0:
-        return abs(quantity) < max_can_sell
-    else:
-        return False
-    
-def get_max_can_buy(code, price):
-    ret, data = trade_context.acctradinginfo_query(order_type=OrderType.NORMAL, code=code, price=price,
-                                                   trd_env=TRADING_ENVIRONMENT)
-    max_can_buy = data['max_cash_buy'][0]
-    return max_can_buy
-
-def get_cash():
-    ret, data = trade_context.accinfo_query(trd_env=TRADING_ENVIRONMENT)
-    if ret == RET_OK:
-        return data.cash[0]
-        # print([col for col in data.columns if data[col][0] != 'N/A' and data[col][0] != 0])
-    else:
-        # print('accinfo_query error: ', data)
-        trader_logger.error(f'accinfo_query error: {data}')
-
-# Show order status
-def show_order_status(data):
-    order_status = data['order_status'][0]
-    order_info = dict()
-    order_info['Code'] = data['code'][0]
-    order_info['Price'] = data['price'][0]
-    order_info['TradeSide'] = data['trd_side'][0]
-    order_info['Quantity'] = data['qty'][0]
-    # print('[OrderStatus]', order_status, order_info)
-    trader_logger.info(f'[OrderStatus] {order_status} {order_info}')
+    def strategy(self):
+        pass
+        
 
 
 ############################ Fill in the functions below to finish your trading strategy ############################
@@ -386,12 +391,9 @@ def show_order_status(data):
 def on_init():
     # unlock trade (no need to unlock for paper trading)
     if not unlock_trade():
-        # print("Failed to unlock trade.")
         trader_logger.error('Failed to unlock trade.')
         return False
-    # print('************  Strategy Starts ***********')
     trader_logger.info('************  Trader Starts ***********')
-    # get_max_can_buy(TRADING_SECURITY, get_ask_and_bid(TRADING_SECURITY)[0])
     return True
 
 # Run once for each tick. You can write the main logic of the strategy here

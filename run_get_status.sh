@@ -1,29 +1,26 @@
 #!/bin/bash
 
-# Script to start or restart a get_status.py script using nohup
+# Script to manage a get_status.py script as a daily cron job
 
-PID_FILE="./pids/get_status.pid"
-LOG_FILE="./status/status.log"
-SCRIPT="get_status"
+CRON_SCHEDULE="0 0 * * *"  # Daily at midnight
+SCRIPT_PATH="./scripts/get_status.py"
+LOG_FILE="./stats/status.log"
 PYTHON_BIN="python3"
+CRON_JOB="$CRON_SCHEDULE $PYTHON_BIN $SCRIPT_PATH >> $LOG_FILE 2>&1"
 
 start_script() {
-  echo "Starting get_status.py..."
-  nohup $PYTHON_BIN -u -m $SCRIPT >> $LOG_FILE 2>&1 &
-  echo $! > $PID_FILE
-  echo "Script started with PID $(cat $PID_FILE)"
+  echo "Running $SCRIPT_PATH once..."
+  $PYTHON_BIN $SCRIPT_PATH
+  echo "Setting up daily cron job for get_status.py..."
+  (crontab -l 2>/dev/null; echo "$CRON_JOB") | crontab -
+  echo "Cron job added:"
+  crontab -l | grep "$SCRIPT_PATH"
 }
 
 stop_script() {
-  if [ -f $PID_FILE ]; then
-    PID=$(cat $PID_FILE)
-    echo "Stopping script with PID $PID..."
-    kill $PID
-    rm $PID_FILE
-    echo "Script stopped."
-  else
-    echo "Script is not running or PID file is missing."
-  fi
+  echo "Removing cron job for get_status.py..."
+  crontab -l | grep -v "$SCRIPT_PATH" | crontab -
+  echo "Cron job removed."
 }
 
 restart_script() {
