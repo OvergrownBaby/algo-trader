@@ -118,7 +118,7 @@ def get_lot_size(code: str, quote_context: OpenQuoteContext, trader_logger: Opti
     log_info(f'Lot size for {code} is {lot_size}', trader_logger)
     return lot_size
 
-def get_ask_and_bid(code: str, quote_context: OpenQuoteContext, trader_logger: Optional[logging.Logger]=None) -> Tuple[Optional[float], Optional[float]]:
+def get_ask_and_bid(code: str, quote_context: OpenQuoteContext, trader_logger: Optional[logging.Logger]=None) -> tuple[Optional[float], Optional[float]]:
     """
     Get the ask and bid prices for the specified code.
 
@@ -132,3 +132,58 @@ def get_ask_and_bid(code: str, quote_context: OpenQuoteContext, trader_logger: O
         log_error(f'Get order book failed: {data}', trader_logger)
         return None, None
     return data['Ask'][0][0], data['Bid'][0][0]
+
+def is_valid_quantity(trade_context: OpenSecTradeContext, trd_env: TrdEnv, code: str, quantity: int, price: float, trader_logger: Optional[logging.Logger]=None) -> bool:
+    """ Check the buying power is enough for the quantity """
+    ret, data = trade_context.acctradinginfo_query(order_type=OrderType.NORMAL, code=code, price=price,
+                                                   trd_env=trd_env)
+    if ret != RET_OK:
+        trader_logger.error(f'Get max long/short quantity failed: {data}')
+        return False
+    max_can_buy = data['max_cash_buy'][0]
+    max_can_sell = data['max_sell_short'][0]
+    if quantity > 0:
+        return quantity < max_can_buy
+    elif quantity < 0:
+        return abs(quantity) < max_can_sell
+    else:
+        return False
+
+def open_position(trade_context: OpenSecTradeContext, trd_env: TrdEnv, code: str, open_quantity: int, trader_logger: Optional[logging.Logger]=None, trans_log_path: Optional[str]=None, trader_name: Optional[str]=None):
+    # Get order book data
+    ask, bid = get_ask_and_bid(code)
+
+    # Check whether buying power is enough
+    if is_valid_quantity(code, open_quantity, ask):
+        # Place order
+        ret, data = trade_context.place_order(price=ask, qty=open_quantity, code=code, trd_side=TrdSide.BUY,
+                                              order_type=OrderType.NORMAL, trd_env=trd_env, remark=trader_name)
+        if ret != RET_OK:
+            trader_logger.error(f'Open position failed: {data}')
+        elif trans_log_path is not None:
+            file_exists = os.path.isfile(trans_log_path) and os.path.getsize(trans_log_path) > 0
+            data.to_csv(trans_log_path, mode='a', sep=',', index=False, header=not file_exists)
+    else:
+        trader_logger.error('Maximum quantity that can be bought is less than transaction quantity.')
+
+
+def close_position(trade_context: OpenSecTradeContext, quote_context: OpenQuoteContext, trd_env: TrdEnv, code: str, quantity: int, trader_logger: Optional[logging.Logger]=None, trans_log_path: Optional[str]=None, trader_name: Optional[str]=None):
+    # Get order book data
+    ask, bid = get_ask_and_bid(code, quote_context, trader_logger)
+
+    # Check quantity
+    if quantity == 0:
+        log_error('Invalid order quantity.', trader_logger)
+        return False
+
+    # Close position
+    ret, data = trade_context.place_order(price=bid, qty=quantity, code=code, trd_side=TrdSide.SELL,
+                   order_type=OrderType.NORMAL, trd_env=trd_env)
+    
+    if ret == RET_OK:
+        file_exists = os.path.isfile(trans_log_path) and os.path.getsize(trans_log_path) > 0
+        data.to_csv(trans_log_path, mode='a', sep=',', index=False, header = not file_exists)
+    elif ret != RET_OK:
+        log_error(f'Close position failed: {data}', trader_logger)
+        return False
+    return True

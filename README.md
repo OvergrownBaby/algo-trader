@@ -1,9 +1,12 @@
 # algo-trader
 An algo trading module based on FutuAPI
 
+# Todo:
+container doesn't have systemd rights, so can't use crontab
+
 ## Prerequisites
 
-- Bash shell
+- Bash shell with `crontab` installed
 - Python environment set up at the specified path
 - Trading scripts located within the `./traders` directory for global management
 

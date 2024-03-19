@@ -13,9 +13,7 @@ from futu import *
 import logging
 import pandas as pd
 import matplotlib.pyplot as plt
-from modules.indicators import *
-import modules.tools as tools
-
+from modules.strategies import MACDBaseStrat
 
 ############################ Global Variables ############################
 FUTU_OPEND_ADDRESS = '127.0.0.1'  # Futu OpenD listening address
@@ -54,13 +52,15 @@ SIGNAL_PARAM = 9
 MACD_THRESHOLD = 0.003
 PROPORTION = 1/len(TRADING_SECURITIES)
 
-
 #Create context objects
 quote_context = OpenQuoteContext(host=FUTU_OPEND_ADDRESS, port=FUTU_OPEND_PORT)  # Quotation context
 quote_context.subscribe(TRADING_SECURITIES, [SubType.QUOTE, TRADING_PERIOD, SubType.ORDER_BOOK])
 trade_context = OpenSecTradeContext(filter_trdmarket=TRADING_MARKET, host=FUTU_OPEND_ADDRESS, port=FUTU_OPEND_PORT, security_firm=SecurityFirm.FUTUSECURITIES)  # Trading context. It must be consistent with the underlying varieties.
 
-# Unlock trade
+# strategies
+myMACD = MACDBaseStrat(TRADING_ENVIRONMENT, trade_context, quote_context, 'HK.00700', KLType.K_1M, proportion = 0.3, trader_logger=trader_logger, event_logger=event_logger, trans_log_path=TRANS_LOG_PATH, trader_name=TRADER_NAME)
+
+# all of these tool functions to be deprecated and replaced in tools.py
 def unlock_trade():
     if TRADING_ENVIRONMENT == TrdEnv.REAL:
         ret, data = trade_context.unlock_trade(TRADING_PWD)
@@ -72,8 +72,6 @@ def unlock_trade():
         # print('Unlock Trade success!')
     return True
 
-
-# Check if it is regular trading time for underlying security
 def is_normal_trading_time(code):
     ret, data = quote_context.get_market_state([code])
     if ret != RET_OK:
@@ -100,8 +98,6 @@ def is_normal_trading_time(code):
     # print('It is not regular trading hours.')
     return False
 
-
-# Get positions
 def get_holding_position(code):
     holding_position = 0
     ret, data = trade_context.position_list_query(code=code, trd_env=TRADING_ENVIRONMENT)
@@ -116,7 +112,6 @@ def get_holding_position(code):
         trader_logger.info(f'[POSITION] Holding {holding_position} shares of {code}')
     return holding_position
 
-# Get ask1 and bid1 from order book
 def get_ask_and_bid(code):
     ret, data = quote_context.get_order_book(code, num=1)
     if ret != RET_OK:
@@ -125,8 +120,6 @@ def get_ask_and_bid(code):
         return None, None
     return data['Ask'][0][0], data['Bid'][0][0]
 
-
-# Open long positions
 def open_position(code, open_quantity):
     # Get order book data
     ask, bid = get_ask_and_bid(code)
@@ -142,13 +135,12 @@ def open_position(code, open_quantity):
             # print('Open position failed: ', data)
             trader_logger.error(f'Open position failed: {data}')
         else:
-            data.to_csv(TRANS_LOG_PATH, mode='a', sep=',', index=False)
+            file_exists = os.path.isfile(TRANS_LOG_PATH) and os.path.getsize(TRANS_LOG_PATH) > 0
+            data.to_csv(TRANS_LOG_PATH, mode='a', sep=',', index=False, header=not file_exists)
     else:
         # print('Maximum quantity that can be bought less than transaction quantity.')
         trader_logger.error('Maximum quantity that can be bought is less than transaction quantity.')
 
-
-# Close position
 def close_position(code, quantity):
     # Get order book data
     ask, bid = get_ask_and_bid(code)
@@ -164,15 +156,14 @@ def close_position(code, quantity):
                    order_type=OrderType.NORMAL, trd_env=TRADING_ENVIRONMENT, remark='moving_average_strategy')
     
     if ret == RET_OK:
-        data.to_csv(TRANS_LOG_PATH, mode='a', sep=',', index=False)
+        file_exists = os.path.isfile(TRANS_LOG_PATH) and os.path.getsize(TRANS_LOG_PATH) > 0
+        data.to_csv(TRANS_LOG_PATH, mode='a', sep=',', index=False, header = not file_exists)
     elif ret != RET_OK:
         # print('[ERROR]', data)
         trader_logger.error(f'Close position failed: {data}')
         return False
     return True
 
-
-# Get size of lot
 def get_lot_size(code):
     price_quantity = 0
     # Use minimum lot size
@@ -184,9 +175,8 @@ def get_lot_size(code):
     price_quantity = data['lot_size'][0]
     return price_quantity
 
-
-# Check the buying power is enough for the quantity
 def is_valid_quantity(code, quantity, price):
+    """ Check the buying power is enough for the quantity """
     ret, data = trade_context.acctradinginfo_query(order_type=OrderType.NORMAL, code=code, price=price,
                                                    trd_env=TRADING_ENVIRONMENT)
     if ret != RET_OK:
@@ -217,7 +207,6 @@ def get_cash():
         # print('accinfo_query error: ', data)
         trader_logger.error(f'accinfo_query error: {data}')
 
-# Show order status
 def show_order_status(data):
     order_status = data['order_status'][0]
     order_info = dict()
@@ -228,6 +217,7 @@ def show_order_status(data):
     # print('[OrderStatus]', order_status, order_info)
     trader_logger.info(f'[OrderStatus] {order_status} {order_info}')
 
+# strategy functions to be replaced by a strategy class
 def ma_strat(code):
 
     if not is_normal_trading_time(code):
@@ -376,16 +366,6 @@ def macd_strat(code, proportion, fast_param, slow_param, signal_param):
     # plot_macd()
     execute_strat()
 
-class MACDStrat(MACD): # under construction
-    def __init__(self, quote_context, symbol, trading_period, logger, short_window=12, long_window=26, signal_window=9, threshold=0.0):
-        super().__init__(quote_context, symbol, trading_period, logger, short_window, long_window, signal_window, threshold)
-        # self.logger = logging.getLogger(TRADER_NAME)
-
-    def strategy(self):
-        pass
-        
-
-
 ############################ Fill in the functions below to finish your trading strategy ############################
 # Strategy initialization. Run once when the strategy starts
 def on_init():
@@ -400,12 +380,12 @@ def on_init():
 def on_tick():
     pass
 
-
 # Run once for each new candlestick. You can write the main logic of the strategy here
 def on_bar_open():
     # Print seperate line
     # print('*****************************************')
     trader_logger.info('*****************************************')
+    myMACD.execute()
     # ma_strat('HK.00700')
     
     for security in TRADING_SECURITIES:
@@ -422,11 +402,9 @@ def on_bar_open():
         macd_strat(security, PROPORTION, FAST_MOVING_AVERAGE, SLOW_MOVING_AVERAGE, SIGNAL_PARAM)
         trader_logger.info('')
 
-
 # Run once when an order is filled
 def on_fill(data):
     pass
-
 
 # Run once when the status of an order changes
 def on_order_status(data):
@@ -497,8 +475,6 @@ def setup_logging():
     console2.setFormatter(formatter)
     event_logger.addHandler(console2)
 
-
-# Main function
 if __name__ == '__main__':
     # Strategy initialization
     setup_logging()
