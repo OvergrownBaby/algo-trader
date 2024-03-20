@@ -25,7 +25,7 @@ class MACDBaseStrat(MACD):
         self.seen_first_death_cross = False
 
     def strategy(self):
-        holding_position = get_holding_position(self.symbol, self.trade_context, self.trader_name)
+        holding_position = get_holding_position(self.symbol, self.trade_context, self.trade_env, self.trader_name)
         shares_per_lot = get_lot_size(self.symbol, self.quote_context, self.trader_logger)
         total_cash = get_cash(self.trade_context, self.trade_env, self.trader_logger)
         total_budget = total_cash*self.proportion
