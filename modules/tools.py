@@ -9,15 +9,17 @@ TRADING_PWD = os.getenv('FUTU_TRD_PW')  # Trading password, used to unlock tradi
 
 def log_info(msg: str, logger: Optional[logging.Logger]=None):
     """Logs a message at INFO level."""
-    if logger and logger.isEnabledFor(logging.INFO):
-        logger.info(msg)
+    if logger:
+        if logger.isEnabledFor(logging.INFO):
+            logger.info(msg)
     else:
         print(msg)
 
 def log_error(msg: str, logger: Optional[logging.Logger]=None):
     """Logs a message at ERROR level."""
-    if logger and logger.isEnabledFor(logging.ERROR):
-        logger.error(msg)
+    if logger:
+        if logger.isEnabledFor(logging.ERROR):
+            logger.error(msg)
     else:
         print(msg)
 
@@ -51,7 +53,8 @@ def is_normal_trading_time(code: str, quote_context: OpenQuoteContext, logger: O
                     market_state == MarketState.FUTURE_BREAK_OVER  or \
                     market_state == MarketState.NIGHT_OPEN:
         return True
-    log_info('It is not regular trading hours.', logger)
+    else:
+        log_info('It is not regular trading hours.', logger)
     return False
 
 def get_holding_position(code: str, trade_context: OpenSecTradeContext, trd_env: TrdEnv, trader_logger: Optional[logging.Logger]=None) -> int:
@@ -63,7 +66,7 @@ def get_holding_position(code: str, trade_context: OpenSecTradeContext, trd_env:
     else:
         for qty in data['qty'].values.tolist():
             holding_position += qty
-        log_info(f'[POSITION] Holding {holding_position} shares of {code}', trader_logger)
+            log_info(f'[POSITION] Holding {holding_position} shares of {code}', trader_logger)
     return holding_position
     
 def get_lot_size(code: str, quote_context: OpenQuoteContext, trader_logger: Optional[logging.Logger]=None) -> int:
@@ -95,10 +98,10 @@ def get_cash(trade_context: OpenSecTradeContext, trd_env: TrdEnv, trader_logger:
     ret, data = trade_context.accinfo_query(trd_env=trd_env)
     if ret == RET_OK:
         cash = data.cash[0]
-        log_info(f'Available cash: {cash}', trader_logger)
+        log_info(f'Available cash: {cash}')
         return cash
     else:
-        log_error(f'accinfo_query error: {data}', trader_logger)
+        log_error(f'accinfo_query error: {data}')
         return None
 
 def get_ask_and_bid(code: str, quote_context: OpenQuoteContext, trader_logger: Optional[logging.Logger]=None) -> tuple[Optional[float], Optional[float]]:
