@@ -1,7 +1,6 @@
 # -*- coding: GBK -*-
 
 ### Todo
-# todo: make a abstractbase class for each strategy
 ### backtest with joint quant
 ### figure out how to import, change password access to config file inside project directory but rmb to .gitignore it
 ### package dependencies so i don't need a venv and can just pip install
@@ -56,9 +55,6 @@ PROPORTION = 1/len(TRADING_SECURITIES)
 quote_context = OpenQuoteContext(host=FUTU_OPEND_ADDRESS, port=FUTU_OPEND_PORT)  # Quotation context
 quote_context.subscribe(TRADING_SECURITIES, [SubType.QUOTE, TRADING_PERIOD, SubType.ORDER_BOOK])
 trade_context = OpenSecTradeContext(filter_trdmarket=TRADING_MARKET, host=FUTU_OPEND_ADDRESS, port=FUTU_OPEND_PORT, security_firm=SecurityFirm.FUTUSECURITIES)  # Trading context. It must be consistent with the underlying varieties.
-
-# strategies
-myMACD = MACDBaseStrat(TRADING_ENVIRONMENT, trade_context, quote_context, 'HK.00700', KLType.K_1M, proportion = 0.3, trader_logger=trader_logger, event_logger=event_logger, trans_log_path=TRANS_LOG_PATH, trader_name=TRADER_NAME)
 
 # all of these tool functions to be deprecated and replaced in tools.py
 def unlock_trade():
@@ -366,6 +362,9 @@ def macd_strat(code, proportion, fast_param, slow_param, signal_param):
     # plot_macd()
     execute_strat()
 
+# strategies
+myMACD = MACDBaseStrat(TRADING_ENVIRONMENT, trade_context, quote_context, 'HK.00700', KLType.K_1M, proportion = 0.3, trader_logger=trader_logger, event_logger=event_logger, trans_log_path=TRANS_LOG_PATH, trader_name=TRADER_NAME)
+
 ############################ Fill in the functions below to finish your trading strategy ############################
 # Strategy initialization. Run once when the strategy starts
 def on_init():
@@ -382,7 +381,6 @@ def on_tick():
 
 # Run once for each new candlestick. You can write the main logic of the strategy here
 def on_bar_open():
-    # Print seperate line
     # print('*****************************************')
     trader_logger.info('*****************************************')
     myMACD.execute()

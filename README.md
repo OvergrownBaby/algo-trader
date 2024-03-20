@@ -1,9 +1,6 @@
 # algo-trader
 An algo trading module based on FutuAPI
 
-# Todo:
-container doesn't have systemd rights, so can't use crontab
-
 ## Prerequisites
 
 - Bash shell with `crontab` installed

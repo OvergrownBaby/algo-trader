@@ -5,6 +5,8 @@ from typing import Optional
 
 # Todo: migrate all tool functions from paper_HK.py to this file so trader files are just strategy implementations
 
+TRADING_PWD = os.getenv('FUTU_TRD_PW')  # Trading password, used to unlock trading for real trading environment
+
 def log_info(msg: str, logger: Optional[logging.Logger]=None):
     """Logs a message at INFO level."""
     if logger and logger.isEnabledFor(logging.INFO):
@@ -19,7 +21,7 @@ def log_error(msg: str, logger: Optional[logging.Logger]=None):
     else:
         print(msg)
 
-# Check if it is regular trading time for underlying security
+# tool functions from the example script
 def is_normal_trading_time(code: str, quote_context: OpenQuoteContext, logger: Optional[logging.Logger]=None) -> bool:
     """
     Checks if the market is open for trading for the specified code.
@@ -52,7 +54,7 @@ def is_normal_trading_time(code: str, quote_context: OpenQuoteContext, logger: O
     log_info('It is not regular trading hours.', logger)
     return False
 
-def get_holding_position(code: str, trade_context: OpenSecTradeContext, trd_env: TrdEnv, trader_logger: Optional[logging.Logger]=None) -> Optional[int]:
+def get_holding_position(code: str, trade_context: OpenSecTradeContext, trd_env: TrdEnv, trader_logger: Optional[logging.Logger]=None) -> int:
     holding_position = 0
     ret, data = trade_context.position_list_query(code=code, trd_env=trd_env)
     if ret != RET_OK:
@@ -63,8 +65,7 @@ def get_holding_position(code: str, trade_context: OpenSecTradeContext, trd_env:
             holding_position += qty
         log_info(f'[POSITION] Holding {holding_position} shares of {code}', trader_logger)
     return holding_position
-
-# Get size of lot
+    
 def get_lot_size(code: str, quote_context: OpenQuoteContext, trader_logger: Optional[logging.Logger]=None) -> int:
     """
     Get the size of a lot for the specified code.
@@ -99,24 +100,6 @@ def get_cash(trade_context: OpenSecTradeContext, trd_env: TrdEnv, trader_logger:
     else:
         log_error(f'accinfo_query error: {data}', trader_logger)
         return None
-    
-def get_lot_size(code: str, quote_context: OpenQuoteContext, trader_logger: Optional[logging.Logger]=None) -> int:
-    """
-    Get the size of a lot for the specified code.
-
-    :param code: The trading symbol to get the lot size for.
-    :param quote_context: The context to use for fetching market snapshot.
-    :param trader_logger: Optional logger for logging messages.
-    :return: The size of a lot for the specified code.
-    """
-    lot_size = 0
-    ret, data = quote_context.get_market_snapshot([code])
-    if ret != RET_OK:
-        log_error(f'Get market snapshot failed: {data}', trader_logger)
-        return lot_size
-    lot_size = data['lot_size'][0]
-    log_info(f'Lot size for {code} is {lot_size}', trader_logger)
-    return lot_size
 
 def get_ask_and_bid(code: str, quote_context: OpenQuoteContext, trader_logger: Optional[logging.Logger]=None) -> tuple[Optional[float], Optional[float]]:
     """
@@ -149,12 +132,12 @@ def is_valid_quantity(trade_context: OpenSecTradeContext, trd_env: TrdEnv, code:
     else:
         return False
 
-def open_position(trade_context: OpenSecTradeContext, trd_env: TrdEnv, code: str, open_quantity: int, trader_logger: Optional[logging.Logger]=None, trans_log_path: Optional[str]=None, trader_name: Optional[str]=None):
+def open_position(trade_context: OpenSecTradeContext, quote_context: OpenQuoteContext, trd_env: TrdEnv, code: str, open_quantity: int, trader_logger: Optional[logging.Logger]=None, trans_log_path: Optional[str]=None, trader_name: Optional[str]=None):
     # Get order book data
-    ask, bid = get_ask_and_bid(code)
+    ask, bid = get_ask_and_bid(code, quote_context, trader_logger)
 
     # Check whether buying power is enough
-    if is_valid_quantity(code, open_quantity, ask):
+    if is_valid_quantity(trade_context, trd_env, code, open_quantity, ask, trader_logger):
         # Place order
         ret, data = trade_context.place_order(price=ask, qty=open_quantity, code=code, trd_side=TrdSide.BUY,
                                               order_type=OrderType.NORMAL, trd_env=trd_env, remark=trader_name)
@@ -165,7 +148,6 @@ def open_position(trade_context: OpenSecTradeContext, trd_env: TrdEnv, code: str
             data.to_csv(trans_log_path, mode='a', sep=',', index=False, header=not file_exists)
     else:
         trader_logger.error('Maximum quantity that can be bought is less than transaction quantity.')
-
 
 def close_position(trade_context: OpenSecTradeContext, quote_context: OpenQuoteContext, trd_env: TrdEnv, code: str, quantity: int, trader_logger: Optional[logging.Logger]=None, trans_log_path: Optional[str]=None, trader_name: Optional[str]=None):
     # Get order book data
@@ -187,3 +169,27 @@ def close_position(trade_context: OpenSecTradeContext, quote_context: OpenQuoteC
         log_error(f'Close position failed: {data}', trader_logger)
         return False
     return True
+
+def unlock_trade(trade_context: OpenSecTradeContext, trd_env: TrdEnv, trader_logger: Optional[logging.Logger]=None) -> bool:
+    if trd_env == TrdEnv.REAL:
+        ret, data = trade_context.unlock_trade(TRADING_PWD)
+        if ret != RET_OK:
+            trader_logger.error(f'Unlock trade failed: {data}')
+            return False
+        trader_logger.info('Unlock Trade Success!')
+    return True
+ 
+def get_max_can_buy(trade_context: OpenSecTradeContext, trd_env: TrdEnv, code: str, price: float) -> Optional[float]:
+    ret, data = trade_context.acctradinginfo_query(order_type=OrderType.NORMAL, code=code, price=price,
+                                                   trd_env=trd_env)
+    max_can_buy = data['max_cash_buy'][0]
+    return max_can_buy
+
+def show_order_status(data: dict, trader_logger: Optional[logging.Logger]=None):
+    order_status = data['order_status'][0]
+    order_info = dict()
+    order_info['Code'] = data['code'][0]
+    order_info['Price'] = data['price'][0]
+    order_info['TradeSide'] = data['trd_side'][0]
+    order_info['Quantity'] = data['qty'][0]
+    trader_logger.info(f'[OrderStatus] {order_status} {order_info}')

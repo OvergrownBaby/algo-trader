@@ -25,12 +25,12 @@ class MACDBaseStrat(MACD):
         self.seen_first_death_cross = False
 
     def strategy(self):
-        holding_position = get_holding_position(self.symbol)
-        shares_per_lot = get_lot_size(self.symbol)
-        total_cash = get_cash()
+        holding_position = get_holding_position(self.symbol, self.trade_context, self.trader_name)
+        shares_per_lot = get_lot_size(self.symbol, self.quote_context, self.trader_logger)
+        total_cash = get_cash(self.trade_context, self.trade_env, self.trader_logger)
         total_budget = total_cash*self.proportion
         self.trader_logger.info(f"[ALLOCATE] {self.proportion} of {total_cash} allocated to {self.symbol}")
-        lots_can_buy = total_budget // (get_lot_size(self.symbol) * get_ask_and_bid(self.symbol)[0])
+        lots_can_buy = total_budget // (get_lot_size(self.symbol, self.quote_context, self.trader_logger) * get_ask_and_bid(self.symbol, self.quote_context, self.trader_logger)[0])
     
         macd_tdy = self.indicators['macd_tdy']
         macd_ytd = self.indicators['macd_ytd']

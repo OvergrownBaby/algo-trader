@@ -98,7 +98,5 @@ class MACD(ABC):
 
     def execute(self):
         self.get_data()
-        if not self.data:
-            raise ValueError("Data loading failed.")
         self.get_indicators()
         self.strategy()
