@@ -22,11 +22,12 @@ start_script() {
   script_name=$(basename "$1")
   log_file="$LOG_DIR/${script_name%.*}.log"
   pid_file="$PID_DIR/${script_name%.*}.pid"
+  out_file="$LOG_DIR/${script_name%.*}.out"
   echo "Starting $script_name..."
   module_path="${1%.py}"
   module_name="${module_path//\//.}"
   # nohup $PYTHON_BIN -u -m $module_name >> "$log_file" 2>&1 & # Use if log without logging module
-  nohup $PYTHON_BIN -u -m $module_name > /dev/null 2>&1 &
+  nohup $PYTHON_BIN -u -m $module_name > $out_file 2>&1 &
   echo $! > "$pid_file"
   printf "%s started with PID %s.\n\n" "$script_name" "$(cat "$pid_file")"
 }
