@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Directories and paths
-# LOG_DIR="./logs"
+LOG_DIR="./trader_logs"
 PID_DIR="./pids"
 SCRIPT_DIR="traders"
 PYTHON_BIN="python3"
@@ -23,11 +23,12 @@ start_script() {
   log_file="$LOG_DIR/${script_name%.*}.log"
   pid_file="$PID_DIR/${script_name%.*}.pid"
   out_file="$LOG_DIR/${script_name%.*}.out"
+  touch "$log_file" "$pid_file" "$out_file"
   echo "Starting $script_name..."
   module_path="${1%.py}"
   module_name="${module_path//\//.}"
   # nohup $PYTHON_BIN -u -m $module_name >> "$log_file" 2>&1 & # Use if log without logging module
-  nohup $PYTHON_BIN -u -m $module_name > $out_file 2>&1 &
+  nohup $PYTHON_BIN -u -m $module_name >> $out_file 2>&1 &
   echo $! > "$pid_file"
   printf "%s started with PID %s.\n\n" "$script_name" "$(cat "$pid_file")"
 }

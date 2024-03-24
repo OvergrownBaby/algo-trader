@@ -62,7 +62,7 @@ myMACD = MACDBaseStrat(TRADING_ENVIRONMENT, trade_context, quote_context, 'HK.00
 # Strategy initialization. Run once when the strategy starts
 def on_init():
     # unlock trade (no need to unlock for paper trading)
-    if not unlock_trade():
+    if not unlock_trade(trade_context, TRADING_ENVIRONMENT, trader_logger):
         trader_logger.error('Failed to unlock trade.')
         return False
     trader_logger.info('************  Trader Starts ***********')
