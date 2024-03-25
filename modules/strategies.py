@@ -41,7 +41,7 @@ class MACDBaseStrat(MACD):
             if macd_tdy > self.threshold and macd_ytd < self.threshold: # 上水 and position == 0
                 self.trader_logger.info("[BUY] MACD > 0, buying half of allocated budget.")
                 self.event_logger.info(f"[BUY] {self.symbol} MACD 上水")
-                open_position(self.trade_context, self.trade_env, self.symbol, open_quantity=lots_can_buy // 2 * shares_per_lot, trader_logger=self.trader_logger, trans_log_path=self.trans_log_path, trader_name=self.trader_name) # buy first half of budget
+                open_position(self.trade_context, self.quote_context, self.trade_env, code=self.symbol, open_quantity=lots_can_buy // 2 * shares_per_lot, trader_logger=self.trader_logger, trans_log_path=self.trans_log_path, trader_name=self.trader_name) # buy first half of budget
         else:
             if macd_tdy < -self.threshold:                                       # position > 0 and 水下
                 self.trader_logger.info("[SELL] MACD < 0, selling all of allocated budget.")
