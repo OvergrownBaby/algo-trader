@@ -52,7 +52,7 @@ class MACDBaseStrat(MACD):
                 if (macd_ytd < macd_signal_ytd) and (macd_tdy > macd_signal_tdy): # MACD ½ð²æ, buy half
                     self.trader_logger.info("[BUY] MACD > 0 and golden cross. Buying second half of allocated budget")
                     self.event_logger.info(f"[BUY] {self.symbol} MACD > 0 and ½ð²æ")
-                    open_position(self.trade_context, self.trade_env, self.symbol, open_quantity=lots_can_buy // 2 * shares_per_lot, trader_logger=self.trader_logger, trans_log_path=self.trans_log_path, trader_name=self.trader_name) # buy first half of budget
+                    open_position(self.trade_context, self.quote_context, self.trade_env, code = self.symbol, open_quantity=lots_can_buy // 2 * shares_per_lot, trader_logger=self.trader_logger, trans_log_path=self.trans_log_path, trader_name=self.trader_name) # buy first half of budget
                 if (macd_ytd > macd_signal_ytd) and (macd_tdy < macd_signal_tdy): # MACD ËÀ²æ
                     if self.seen_first_death_cross == 0:                               # first time seeing death cross, do nothing
                         self.seen_first_death_cross = 1
