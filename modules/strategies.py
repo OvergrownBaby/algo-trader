@@ -23,7 +23,7 @@ class MACDBaseStrat(MACD):
             self.event_logger = event_logger
 
         self.seen_first_death_cross = False
-
+ 
     def strategy(self):
         holding_position = get_holding_position(self.symbol, self.trade_context, self.trade_env, self.trader_logger)
         shares_per_lot = get_lot_size(self.symbol, self.quote_context, self.trader_logger)
@@ -48,6 +48,7 @@ class MACDBaseStrat(MACD):
                 if macd_ytd > -self.threshold:
                     self.event_logger.info(f"{self.symbol} MACD ÂäË®")
                 close_position(self.trade_context, self.quote_context, self.trade_env, self.symbol, quantity=holding_position, trader_logger=self.trader_logger, trans_log_path=self.trans_log_path, trader_name=self.trader_name) # sell all
+                self.seen_first_death_cross = False
             else:                                                                # position > 0 and above water
                 if (macd_ytd < macd_signal_ytd) and (macd_tdy > macd_signal_tdy): # MACD ½ð²æ, buy half
                     self.trader_logger.info("[BUY] MACD > 0 and golden cross. Buying second half of allocated budget")

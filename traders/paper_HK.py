@@ -11,7 +11,7 @@ import os
 from futu import *
 import logging
 from modules.strategies import MACDBaseStrat
-from modules.tools import unlock_trade
+from modules.tools import *
 
 ############################ Global Variables ############################
 FUTU_OPEND_ADDRESS = '127.0.0.1'  # Futu OpenD listening address

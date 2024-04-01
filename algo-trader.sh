@@ -49,6 +49,40 @@ stop_script() {
   fi
 }
 
+
+# Start all scripts, excluding specified exceptions
+start_scripts() {
+  echo "Starting scripts in $SCRIPT_DIR"
+  for script in $SCRIPT_DIR/*.py; do
+    script_name=$(basename "$script" .py)
+    if contains_element "$(basename "$script_name")" "$@"; then
+      echo "Skipping $(basename "$script")"
+      continue
+    fi
+    start_script "$script"
+  done
+}
+
+# Stop all scripts, excluding specified exceptions
+stop_scripts() {
+  echo "Stopping scripts, excluding specified exceptions..."
+  for pid_file in $PID_DIR/*.pid; do
+    script_name="${pid_file#$PID_DIR/}"
+    script_name="${script_name%.pid}.py"
+    if contains_element "$script_name" "$@"; then
+      echo "Skipping stop for $script_name"
+      continue
+    fi
+    stop_script "$SCRIPT_DIR/$script_name"
+  done
+}
+
+# Restart all scripts, excluding specified exceptions
+restart_scripts() {
+  stop_scripts "$@"
+  start_scripts "$@"
+}
+
 # Cron job management for get_status.py
 manage_cron_job() {
   action="$1"
